@@ -1,0 +1,36 @@
+* Packages
+#+begin_src emacs-lisp
+(use-package doom-themes)
+#+end_src
+* Configuration
+#+begin_src emacs-lisp
+(load-theme 'doom-dracula t)
+#+end_src
+** Font
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil
+		    :family "IBM Plex Mono"
+		    :foundry "IBM"
+		    :slant 'normal
+		    :weight 'normal :height 98
+		    :width 'normal)
+#+end_src
+* Dashboard
+#+begin_src emacs-lisp
+(setq recentf-exclude (org-agenda-files))
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+(setq dashboard-center-content t)
+(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+(setq show-week-agenda-p t)
+(setq dashboard-items '((recents  . 10)
+                        (projects . 10)
+                        (agenda . 5)))
+(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
+(setq dashboard-set-navigator t)
+(setq dashboard-set-footer nil)
+#+end_src

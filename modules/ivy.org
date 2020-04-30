@@ -1,0 +1,48 @@
+* Packages
+#+begin_src emacs-lisp
+(use-package ivy)
+(use-package swiper)
+(use-package counsel)
+#+end_src
+
+* Configuration
+#+begin_src emacs-lisp
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+
+(setq projectile-completion-system 'ivy)
+(setq ivy-initial-inputs-alist nil)
+#+end_src
+* All the icons
+#+begin_src emacs-lisp
+(use-package all-the-icons-ivy
+  :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
+  :config
+  (setq all-the-icons-ivy-file-commands
+        '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
+  (setq all-the-icons-spacer " ")
+  :ensure t)
+#+end_src
+* Bindings
+** TODO fix 'counsel-minibuffer-history binding
+#+begin_src emacs-lisp
+  (general-define-key
+   "M-x" 'counsel-M-x
+   "C-x C-f" 'counsel-find-file
+   "C-c o" 'swiper
+   "C-c r" 'ivy-resume
+   "C-c f" 'counsel-recentf
+   "C-c a" 'counsel-ag)
+
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+  ;; ivy/counsel
+  (general-define-key
+   :keymaps 'ivy-minibuffer-map
+   "TAB" 'ivy-call
+   "C-z" 'ivy-dispatching-done
+   "RET" 'ivy-alt-done)
+
+#+end_src
+

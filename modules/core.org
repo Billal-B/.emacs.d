@@ -1,19 +1,20 @@
 * Packages
 #+begin_src emacs-lisp
-  (use-package general
-    :config
-    (require 'general))
+(use-package general)
+(use-package hydra)
+(use-package hercules)
 #+end_src
 * Configuration
 #+begin_src emacs-lisp
-  (load-theme 'leuven)
-  (load-theme 'adwaita)
+(require 'general)
 
-  (electric-pair-mode t)
-  (scroll-bar-mode 0)
-  (setq mouse-yank-at-point t)
-  (global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
-  (show-paren-mode t)
+(global-hl-line-mode t)
+(electric-pair-mode t)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(setq mouse-yank-at-point t)
+(global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
+(show-paren-mode t)
 
 #+end_src
 ** Backup
@@ -42,3 +43,4 @@
 #+end_src
 
 * Keybinds
+  

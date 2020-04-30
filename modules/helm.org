@@ -1,19 +1,20 @@
-* Preload
-** TODO helm treemacs icons
-#+begin_src emacs-lisp
-;;(require 'helm-treemacs-icons)
-;;(helm-treemacs-icons-enable)
-#+end_src
 * Packages
 #+begin_src emacs-lisp
 (use-package helm)
-(require 'helm-config)
 (use-package helm-projectile)
-(require 'helm-projectile)
 #+end_src
-
+** Icons support
+*Warning* must be placed before helm is loaded
+ #+begin_src emacs-lisp
+   (use-package treemacs)
+   (require 'helm-treemacs-icons)
+   (helm-treemacs-icons-enable)
+ #+end_src
 * Configuration
 #+begin_src emacs-lisp
+  (require 'helm-config)
+  (require 'helm-projectile)
+
   (helm-mode 1)
 
   (customize-set-variable 'helm-ff-lynx-style-map t) ; allow going up/down dir with helm using arrow keys

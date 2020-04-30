@@ -5,12 +5,14 @@
 (add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
+(setq org-edit-src-content-indentation 0)
+
 (require 'org-bullets)
 (setq org-bullets-bullet-list
       '("◉" "○"))
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-(setq org-agenda-files "~/org-files/agenda-adyl.org")
+(setq org-agenda-files (directory-files-recursively "~/org-files/" "\.org$"))
 
 (setq org-capture-templates
       '(("t" "Todo (ADYL)" entry (file+headline "~/org-files/agenda-adyl.org" "ADYL")

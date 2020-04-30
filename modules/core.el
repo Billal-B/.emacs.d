@@ -1,18 +1,17 @@
-(use-package general
-  :config
-  (require 'general))
+(use-package general)
+(use-package hydra)
 
-(load-theme 'leuven)
-(load-theme 'adwaita)
+(require 'general)
 
+(global-hl-line-mode t)
 (electric-pair-mode t)
+(tool-bar-mode 0)
 (scroll-bar-mode 0)
 (setq mouse-yank-at-point t)
 (global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
 (show-paren-mode t)
 
 (setq savefiles-dir (expand-file-name "savefiles" user-emacs-directory))
-savefiles-dir
 (setq backup-directory-alist `(("." . ,savefiles-dir)))
 (setq make-backup-files t
       delete-old-versions t

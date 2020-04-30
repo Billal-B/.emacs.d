@@ -59,7 +59,10 @@
 (load-org-module "core.org")
 (load-org-module "exec-path.org")
 (load-org-module "company.org")
-(load-org-module "helm.org")
+;; (load-org-module "helm.org")
+(load-org-module "ivy.org")
 (load-org-module "org-mode.org")
-;;(load-org-module "appearance.org")
+(load-org-module "evil.org")
+(load-org-module "appearance.org")
+(load-org-module "leader.org")
 

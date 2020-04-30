@@ -1,9 +1,11 @@
-;;(require 'helm-treemacs-icons)
-;;(helm-treemacs-icons-enable)
-
 (use-package helm)
-(require 'helm-config)
 (use-package helm-projectile)
+
+(use-package treemacs)
+(require 'helm-treemacs-icons)
+(helm-treemacs-icons-enable)
+
+(require 'helm-config)
 (require 'helm-projectile)
 
 (helm-mode 1)
