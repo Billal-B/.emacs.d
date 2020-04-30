@@ -1,0 +1,14 @@
+(use-package exec-path-from-shell)
+
+(require 'dash)
+
+(setq bb-env-var '("NEXUS_USER" "NEXUS_PW"))
+
+(with-eval-after-load 'exec-path-from-shell
+  (dolist (var (-union '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE") bb-env-var))
+    (add-to-list 'exec-path-from-shell-variables var)))
+
+(when (or (memq window-system '(mac ns x))
+          (unless (memq system-type '(ms-dos windows-nt))
+            (daemonp)))
+  (exec-path-from-shell-initialize))

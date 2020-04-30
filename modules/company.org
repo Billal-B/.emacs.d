@@ -1,0 +1,18 @@
+* Packages
+#+begin_src emacs-lisp
+(use-package company)
+(use-package company-quickhelp)
+#+end_src
+* Configuration
+#+begin_src emacs-lisp
+  (global-company-mode 1)
+
+  (setq global-company-mode t
+	company-idle-delay 0
+	company-quickhelp-mode t
+	company-quickhelp-delay nil)
+#+end_src
+* Bindings
+#+begin_src emacs-lisp
+
+#+end_src

@@ -1,0 +1,65 @@
+(use-package org-bullets)
+
+(setq org-log-done 'time)
+
+(add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+
+(require 'org-bullets)
+(setq org-bullets-bullet-list
+      '("◉" "○"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(setq org-agenda-files "~/org-files/agenda-adyl.org")
+
+(setq org-capture-templates
+      '(("t" "Todo (ADYL)" entry (file+headline "~/org-files/agenda-adyl.org" "ADYL")
+	 "* TODO %?\n  %U\n")
+	("T" "Todo" entry (file+headline "~/org-files/agenda.org" "Others")
+	 "* TODO %?\n  %U\n")
+	("b" "BB" entry (file+datetree "~/org-files/bb.org" "Journal")
+	 "* %?\nEntered on %U\n")
+	("a" "Agenda" entry (file+datetree "~/org-files/agenda-adyl.org" "Agenda")
+	 "* %?\nEntered on %U\n")))
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator nil
+      org-agenda-compact-blocks t
+      org-agenda-start-day nil ;; i.e. today
+      org-agenda-span 1
+      org-agenda-start-on-weekday nil)
+(setq org-agenda-custom-commands
+      '(("c" "Super view"
+	 ((agenda "" ((org-agenda-overriding-header "")
+		      (org-super-agenda-groups
+		       '((:name "Today"
+				:time-grid t
+				:date today
+				:order 1)))))
+	  (alltodo "" ((org-agenda-overriding-header "")
+		       (org-super-agenda-groups
+			'((:log t)
+			  (:name "To refile"
+				 :file-path "refile\\.org")
+			  (:name "Next to do"
+				 :todo "NEXT"
+				 :order 1)
+			  (:name "Important"
+				 :priority "A"
+				 :order 6)
+			  (:name "Today's tasks"
+				 :file-path "journal/")
+			  (:name "Due Today"
+				 :deadline today
+				 :order 2)
+			  (:name "Scheduled Soon"
+				 :scheduled future
+				 :order 8)
+			  (:name "Overdue"
+				 :deadline past
+				 :order 7)
+			  (:name "Meetings"
+				 :and (:todo "MEET" :scheduled future)
+				 :order 10)
+			  (:discard (:not (:todo "TODO")))))))))))

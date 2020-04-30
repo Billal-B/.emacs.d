@@ -1,0 +1,4 @@
+* Packages
+#+begin_src emacs-lisp
+(use-package magit)
+#+end_src
