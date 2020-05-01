@@ -1,0 +1,20 @@
+* Package
+#+begin_src emacs-lisp
+(use-package projectile)
+(use-package treemacs)
+#+end_src
+
+* Configuration
+** General
+   The variable ~projectile-completion-system~ must be set in =helm.org= or =ivy.org=.
+#+begin_src emacs-lisp
+(projectile-mode +1)
+(setq projectile-enable-caching t)
+(setq projectile-indexing-method 'hybrid)
+#+end_src
+
+* Bindings
+#+begin_src emacs-lisp
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
+#+end_src

@@ -72,6 +72,7 @@
 (load-org-module "eshell.org")
 
 ;; editor
+(load-org-module "projectile.org")
 (load-org-module "appearance.org")
 (load-org-module "commander.org")
 

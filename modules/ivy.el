@@ -1,16 +1,10 @@
-* Packages
-#+begin_src emacs-lisp
 (use-package ivy)
 (use-package ivy-hydra)
 (use-package swiper)
 (use-package counsel)
 (use-package ivy-rich)
 (use-package counsel-projectile)
-#+end_src
 
-* Configuration
-** General
-#+begin_src emacs-lisp
 (ivy-mode 1)
 (ivy-rich-mode 1)
 (counsel-projectile-mode 1)
@@ -19,9 +13,7 @@
 
 (setq projectile-completion-system 'ivy)
 (setq ivy-initial-inputs-alist nil)
-#+end_src
-** All the icons
-#+begin_src emacs-lisp
+
 (use-package all-the-icons-ivy
   :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
   :config
@@ -29,10 +21,7 @@
         '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
   (setq all-the-icons-spacer " ")
   :ensure t)
-#+end_src
-** posframe
-   src:[[https://protesilaos.com/dotemacs/#h:0a9b72b3-aa4a-4c5c-a654-d4bc04b31bbd][some guy]]
-#+begin_src emacs-lisp
+
 (use-package ivy-posframe
   :ensure
   :after ivy
@@ -52,10 +41,7 @@
           (swiper-isearch . nil)
           (t . ivy-posframe-display-at-frame-center)))
   (ivy-posframe-mode 1))
-#+end_src
-* Bindings
-** TODO fix 'counsel-minibuffer-history binding
-#+begin_src emacs-lisp
+
 (general-define-key
  "M-x" 'counsel-M-x
  "C-x C-f" 'counsel-find-file
@@ -73,6 +59,3 @@
  "TAB" 'ivy-call
  "C-z" 'ivy-dispatching-done
  "RET" 'ivy-alt-done)
-
-#+end_src
-
