@@ -2,10 +2,10 @@
 (use-package company-quickhelp)
 
 (global-company-mode 1)
+(company-quickhelp-mode)
 
 (setq global-company-mode t
       company-idle-delay 0
-      company-quickhelp-mode t
-      company-quickhelp-delay nil)
+      company-quickhelp-delay 0)
 
 

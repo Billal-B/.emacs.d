@@ -55,14 +55,23 @@
 ;;----------------------------------------------------------------------------
 (defvar modules-dir (expand-file-name "modules" user-emacs-directory))
 
+
+;; base
 (load-org-module "utils.org")
 (load-org-module "core.org")
 (load-org-module "exec-path.org")
+
+;; completion
 (load-org-module "company.org")
 ;; (load-org-module "helm.org")
 (load-org-module "ivy.org")
+
+;; tools
 (load-org-module "org-mode.org")
 (load-org-module "evil.org")
+(load-org-module "eshell.org")
+
+;; editor
 (load-org-module "appearance.org")
-(load-org-module "leader.org")
+(load-org-module "commander.org")
 

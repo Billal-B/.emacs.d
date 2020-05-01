@@ -2,10 +2,94 @@
 #+begin_src emacs-lisp
 (use-package doom-themes)
 #+end_src
+** Dashboard
+ #+begin_src emacs-lisp
+ (setq recentf-exclude (org-agenda-files))
+ (use-package dashboard
+   :ensure t
+   :config
+   (dashboard-setup-startup-hook))
+
+ (setq dashboard-center-content t)
+ (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+ (setq show-week-agenda-p t)
+ (setq dashboard-items '((recents  . 10)
+                         (projects . 10)
+                         (agenda . 5)))
+ (setq dashboard-set-heading-icons t)
+ (setq dashboard-set-file-icons t)
+ (setq dashboard-set-navigator t)
+ (setq dashboard-set-footer nil)
+ #+end_src
+** Centaur tabs
+ #+begin_src emacs-lisp
+ (use-package centaur-tabs
+   :demand
+   :config
+   (centaur-tabs-mode t)
+   (setq centaur-tabs-set-icons t)
+   (centaur-tabs-group-by-projectile-project))
+ #+end_src
+** All the icons
+#+begin_src emacs-lisp
+(use-package all-the-icons)
+(use-package all-the-icons-dired
+  :config
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+#+end_src
 * Configuration
+** General
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :config
+  (require 'rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  :ensure t)
+#+end_src
+** Theme
 #+begin_src emacs-lisp
 (load-theme 'doom-dracula t)
 #+end_src
+** Modeline
+#+begin_src emacs-lisp
+;; required for doom-modeline
+(use-package ghub)
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 20)
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-icon (display-graphic-p))
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-buffer-state-icon nil)
+  (setq doom-modeline-buffer-modification-icon nil)
+  (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-indent-info nil)
+  (setq doom-modeline-checker-simple-format t)
+  (setq doom-modeline-github t)
+  (setq doom-modeline-github-interval (* 30 60))
+  (setq doom-modeline-persp-name nil)
+  (setq doom-modeline-modal-icon t)
+  (setq doom-modeline-gnus nil))
+
+;; (use-package    feebleline
+;;   :ensure       t
+;;   :config       (setq feebleline-msg-functions
+;;                       '((feebleline-line-number         :post "" :fmt "%5s")
+;;                         (feebleline-column-number       :pre ":" :fmt "%-2s")
+;;                         (feebleline-file-directory      :face feebleline-dir-face :post "")
+;;                         (feebleline-file-or-buffer-name :face font-lock-keyword-face :post "")
+;;                         (feebleline-file-modified-star  :face font-lock-warning-face :post "")
+;;                         (feebleline-git-branch          :face feebleline-git-face :pre " : ")
+;;                         (feebleline-project-name        :align right)))
+;;                 (feebleline-mode 1))
+#+end_src
+
+#+RESULTS:
+: t
+
 ** Font
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
@@ -14,23 +98,4 @@
 		    :slant 'normal
 		    :weight 'normal :height 98
 		    :width 'normal)
-#+end_src
-* Dashboard
-#+begin_src emacs-lisp
-(setq recentf-exclude (org-agenda-files))
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook))
-
-(setq dashboard-center-content t)
-(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-(setq show-week-agenda-p t)
-(setq dashboard-items '((recents  . 10)
-                        (projects . 10)
-                        (agenda . 5)))
-(setq dashboard-set-heading-icons t)
-(setq dashboard-set-file-icons t)
-(setq dashboard-set-navigator t)
-(setq dashboard-set-footer nil)
 #+end_src

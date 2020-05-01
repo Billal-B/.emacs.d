@@ -1,5 +1,6 @@
 (use-package general)
 (use-package hydra)
+(use-package hercules)
 
 (require 'general)
 
@@ -10,6 +11,9 @@
 (setq mouse-yank-at-point t)
 (global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
 (show-paren-mode t)
+(winner-mode 1)
+
+(setq recentf-max-saved-items 300)
 
 (setq savefiles-dir (expand-file-name "savefiles" user-emacs-directory))
 (setq backup-directory-alist `(("." . ,savefiles-dir)))
@@ -29,3 +33,8 @@
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 (setq scroll-margin 3)
+
+(general-create-definer mode-leader
+  :states '(normal insert emacs)
+  :prefix "ù"
+  :non-normal-prefix "M-ù")

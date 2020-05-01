@@ -15,23 +15,25 @@
 (setq mouse-yank-at-point t)
 (global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
 (show-paren-mode t)
-
+(winner-mode 1)
 #+end_src
 ** Backup
 [[https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files][Stackoverflow thread]]
 #+begin_src emacs-lisp
-  (setq savefiles-dir (expand-file-name "savefiles" user-emacs-directory))
-  (setq backup-directory-alist `(("." . ,savefiles-dir)))
-  (setq make-backup-files t
-	delete-old-versions t
-	delete-by-moving-to-trash t
-	backup-by-copying t
-	kept-new-versions 9
-	kept-old-versions 6
-	version-control t
-	auto-save-default t
-	auto-save-timeout 20
-	auto-save-interval 100)
+(setq recentf-max-saved-items 300)
+
+(setq savefiles-dir (expand-file-name "savefiles" user-emacs-directory))
+(setq backup-directory-alist `(("." . ,savefiles-dir)))
+(setq make-backup-files t
+      delete-old-versions t
+      delete-by-moving-to-trash t
+      backup-by-copying t
+      kept-new-versions 9
+      kept-old-versions 6
+      version-control t
+      auto-save-default t
+      auto-save-timeout 20
+      auto-save-interval 100)
 #+end_src
 ** Scrolling
 #+begin_src emacs-lisp
@@ -42,5 +44,12 @@
   (setq scroll-margin 3)
 #+end_src
 
+** Major mode leader
+#+begin_src emacs-lisp
+(general-create-definer mode-leader
+  :states '(normal insert emacs)
+  :prefix "ù"
+  :non-normal-prefix "M-ù")
+#+end_src
 * Keybinds
   

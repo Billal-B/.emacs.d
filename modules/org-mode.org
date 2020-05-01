@@ -11,7 +11,11 @@
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 (setq org-edit-src-content-indentation 0)
+(setq org-confirm-babel-evaluate nil)
 #+end_src
+
+#+RESULTS:
+
 ** Org bullets
 #+begin_src emacs-lisp
 (require 'org-bullets)
@@ -76,3 +80,25 @@
 			  (:discard (:not (:todo "TODO")))))))))))
 #+end_src
 
+** Lisp
+#+begin_src emacs-lisp
+(defun bb-org-evaluate-and-next ()
+  (interactive)
+  (call-interactively 'org-ctrl-c-ctrl-c)
+  (org-babel-next-src-block)
+)
+#+end_src
+
+#+RESULTS:
+: bb-org-evaluate-and-next
+
+* Bindings
+#+begin_src emacs-lisp
+(mode-leader org-mode-map
+  "g" 'counsel-org-goto
+  "G" 'counsel-org-goto-all
+  "!" 'bb-org-evaluate-and-next
+  )
+#+end_src
+
+#+RESULTS:

@@ -6,6 +6,7 @@
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 (setq org-edit-src-content-indentation 0)
+(setq org-confirm-babel-evaluate nil)
 
 (require 'org-bullets)
 (setq org-bullets-bullet-list
@@ -65,3 +66,15 @@
 				 :and (:todo "MEET" :scheduled future)
 				 :order 10)
 			  (:discard (:not (:todo "TODO")))))))))))
+
+(defun bb-org-evaluate-and-next ()
+  (interactive)
+  (call-interactively 'org-ctrl-c-ctrl-c)
+  (org-babel-next-src-block)
+)
+
+(mode-leader org-mode-map
+  "g" 'counsel-org-goto
+  "G" 'counsel-org-goto-all
+  "!" 'bb-org-evaluate-and-next
+  )
