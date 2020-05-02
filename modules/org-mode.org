@@ -4,7 +4,9 @@
 #+end_src
 
 * Configuration
+** General
 #+begin_src emacs-lisp
+(setq org-directory (expand-file-name "org-files" user-emacs-directory))
 (setq org-log-done 'time)
 
 (add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
@@ -80,15 +82,18 @@
 			  (:discard (:not (:todo "TODO")))))))))))
 #+end_src
 
-** Lisp
+** Lisp 
 #+begin_src emacs-lisp
 (defun bb-org-evaluate-and-next ()
   (interactive)
   (call-interactively 'org-ctrl-c-ctrl-c)
-  (org-babel-next-src-block)
-)
-#+end_src
+  (org-babel-next-src-block))
 
+(defun bb-org-rifle ()
+  (interactive)
+  (helm-org-rifle-directories (expand-file-name "modules" user-emacs-directory)))
+#+end_src
+*** TODO improves bb-org rifle
 #+RESULTS:
 : bb-org-evaluate-and-next
 

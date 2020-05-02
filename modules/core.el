@@ -4,6 +4,7 @@
 
 (require 'general)
 
+(global-hi-lock-mode t)
 (global-hl-line-mode t)
 (electric-pair-mode t)
 (tool-bar-mode 0)
@@ -38,3 +39,5 @@
   :states '(normal insert emacs)
   :prefix "ù"
   :non-normal-prefix "M-ù")
+
+(setq dired-listing-switches "-lXGh --group-directories-first")

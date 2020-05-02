@@ -9,15 +9,17 @@ Also put here the packages that don't require a lot of conf
 (use-package helm-swoop)
 (use-package docker)
 (use-package kubernetes)
+(use-package helm-org-rifle)
 #+end_src
 
 #+RESULTS:
 
 * Configuration
-** General
+** General (as in general conf, not the general package)
 #+begin_src emacs-lisp
 (require 'bb-func)
 (require 'general)
+(require 'helm-org-rifle)
 #+end_src
 ** which-key
 #+begin_src emacs-lisp
@@ -89,6 +91,7 @@ Also put here the packages that don't require a lot of conf
  "fl" 'helm-locate
  "fn" 'deft
  "fN" 'deft-new-file
+ "fo" 'bb-org-rifle
  "fr" 'helm-recentf
  "ft" 'treemacs
  "o" '(:ignore t :which-key "Search (occur/ag)")
@@ -119,3 +122,5 @@ Also put here the packages that don't require a lot of conf
  )
 
 #+end_src
+
+#+PROPERTY:    header-args:elisp  :tangle ~/.emacs.d/elisp/init-clojure.el

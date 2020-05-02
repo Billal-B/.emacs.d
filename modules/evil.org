@@ -11,7 +11,8 @@
 (require 'general)
 (require 'evil-mc)
 (evil-mode 1)
-(global-evil-mc-mode 1)
+
+(setq evil-want-fine-undo t)
 #+end_src
 
 ** Disable evils in some modes
@@ -34,6 +35,7 @@
 (evil-set-initial-state 'cider-repl-mode 'emacs)
 (evil-set-initial-state 'cider-inspector-mode 'emacs)
 (evil-set-initial-state 'edebug-mode 'emacs)
+(evil-set-initial-state 'treemacs-mode 'emacs)
 #+end_src
 
 ** enable M-. in normal mode
@@ -49,6 +51,21 @@
 (setq evil-emacs-state-cursor 'bar)
 #+end_src
 
+** Multiple cursors : evil-mc
+#+begin_src emacs-lisp
+(global-evil-mc-mode 1)
+
+(general-define-key
+ :states 'normal
+ "gz" 'bb/evil-mc)
+
+(hercules-def
+ :toggle-funs #'bb/evil-mc
+ :keymap 'evil-mc-cursors-map
+ :transient t
+ :flatten t)
+ 
+#+end_src
 * Binding
 #+begin_src emacs-lisp
 (global-set-key (kbd "M-h") 'evil-window-move-far-left)
@@ -62,17 +79,4 @@
 (define-key evil-normal-state-map (kbd "q") 'nil)
 (define-key evil-normal-state-map (kbd "Q") 'evil-record-macro)
 (define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
-#+end_src
-** Multiple cursors : evil-mc
-#+begin_src emacs-lisp
-(general-define-key
- :states 'normal
- "gz" 'bb/evil-mc)
-
-(hercules-def
- :toggle-funs #'bb/evil-mc
- :keymap 'evil-mc-cursors-map
- :transient t
- :flatten t)
- 
 #+end_src

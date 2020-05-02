@@ -6,9 +6,11 @@
 (use-package helm-swoop)
 (use-package docker)
 (use-package kubernetes)
+(use-package helm-org-rifle)
 
 (require 'bb-func)
 (require 'general)
+(require 'helm-org-rifle)
 
 (require 'which-key)
 (which-key-mode +1)
@@ -60,6 +62,7 @@
  "fl" 'helm-locate
  "fn" 'deft
  "fN" 'deft-new-file
+ "fo" 'bb-org-rifle
  "fr" 'helm-recentf
  "ft" 'treemacs
  "o" '(:ignore t :which-key "Search (occur/ag)")

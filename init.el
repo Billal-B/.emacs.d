@@ -48,7 +48,8 @@
 (defun load-org-module (module)
   (org-babel-load-file
    (expand-file-name module
-		     modules-dir)))
+		     modules-dir)
+   t))
 
 ;;----------------------------------------------------------------------------
 ;; Load modules
@@ -71,8 +72,15 @@
 (load-org-module "evil.org")
 (load-org-module "eshell.org")
 
+;; lang
+(load-org-module "clojure.org")
+
 ;; editor
 (load-org-module "projectile.org")
 (load-org-module "appearance.org")
 (load-org-module "commander.org")
 
+;;----------------------------------------------------------------------------
+;; And finally start the server
+;;----------------------------------------------------------------------------
+(server-start)

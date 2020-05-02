@@ -1,0 +1,600 @@
+#+TITLE: agenda-adyl
+#+TODO: TODO IN-PROGRESS | DONE
+#+COLUMNS: %25ITEM %5TODO %1PRIORITY %10TAGS
+#+COLUMNS: %25ITEM(Task) %5TODO(To-do) %1PRIORITY %10TAGS
+* ADYL
+:CATEGORY: ADYL
+** DONE AYLDATA-370 Export billing stat by hour
+  CLOSED: [2019-12-03 mar. 17:40]
+
+** DONE IN-PROGRESS [#A] manadge deal stat
+   CLOSED: [2019-12-16 lun. 17:04]
+  :LOGBOOK:
+  CLOCK: [2019-12-03 Thu 16:34]
+  :END:
+- [ ] Make in work in cluster and check the output in GCS
+- [ ] Clean up the code
+
+** DONE [#A] Fix manadge job
+   CLOSED: [2019-12-16 lun. 17:04]
+  :LOGBOOK:
+  CLOCK: [2019-13-04 mer. 11:54]--[2019-12-04 mer. 11:54] =>  0:00
+  :END:
+- [X] AYLDATA-371 DealType should be RevenueAuctionType from partner table in Manadge Deal export
+   CLOSED: [2019-12-03 mar. 17:40]
+- [X] AYLDATA-373 Export Deals in json format with lists column
+   CLOSED: [2019-12-03 mar. 17:40]
+- [X] AYLDATA-374 BuyerId should be SeatId
+- [X] advertiser (todo in deal id pr)
+- [X] TODO AYLDATA-375 FloorPrice should be in 10e-3$ not 10e-6
+** DONE [#C] investigate why some days are skipped in job
+- [ ] ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2019-12-01 to=2019-12-02"
+- [ ] ./scripts/run_job.sh -s user -j manadge.ExportDeal -a "from=2019-12-01 to=2019-12-02"
+
+** DONE [#A] ask gregoire if we want to load all the platform DS (ie a month) by not specifying from to dates
+  CLOSED: [2019-12-12 jeu. 14:13] DEADLINE: <2019-12-12 jeu.>
+because it makes the join 30 times bigger
+
+** DONE [#A] slack notif
+   CLOSED: [2019-12-24 mar. 10:52]
+- to be done in airflow python code
+- there is an airflow connector ?
+https://medium.com/datareply/integrating-slack-alerts-in-airflow-c9dcd155105
+- slack creds
+cluster leak checker
+
+** DONE [#A] update airflow version
+   CLOSED: [2019-12-24 mar. 10:52]
+bc of bug https://issues.apache.org/jira/browse/AIRFLOW-4262 which impact slack webhook
+** DONE [#B] Aggregate AdServerStat by attempt
+   CLOSED: [2020-01-29 mer. 15:33] DEADLINE: <2020-01-15 mer.>
+   :LOGBOOK:
+   CLOCK: [2019-12-24 mar. 10:53]
+   :END:
+
+** DONE [#A] tell greg that there are multiple visitor per attempt
+   CLOSED: [2020-01-02 jeu. 15:37]
+   [2019-12-31 mar.]
+** DONE [#A] no deal id in stat + broken revenue for deal stat manadge
+   CLOSED: [2020-01-06 lun. 17:02]
+   [2020-01-03 ven. 14:56]
+** DONE [#A] ask chris or JM why no deal id in ad server stat
+   CLOSED: [2020-01-06 lun. 11:37]
+   [2020-01-03 ven. 17:08]
+** DONE ask chris if it's useful to have adserver stats for adserver grouped by attempt but without dealID
+   CLOSED: [2020-01-06 lun. 11:36]
+   [2020-01-06 lun. 10:56]
+** DONE [#A] manadge : put stat with deal id in different file than stat without
+   CLOSED: [2020-01-08 mer. 09:50]
+   [2020-01-06 lun. 16:59]
+** DONE [#A] deploy airflow on prod
+   CLOSED: [2020-01-08 mer. 09:50]
+   [2020-01-07 mar. 10:32]
+** DONE [#B] add min item/max item/min user/max user in als hyper opt
+   DEADLINE: <2020-01-09 jeu.>
+hyper opt res are written in conf
+   [2020-01-07 mar. 10:55]
+** DONE [#A] investigate why some days are skipped in billing job
+   DEADLINE: <2020-01-08 mer.>
+   [2020-01-08 mer. 10:28]
+- [ ] no billing data in postgre for 2019-12-07
+- [ ] no postgre-sql backup for the 2019-12-06 (company, realm, placement, site, broker_partner)
+*** issue is in adserverStat data loading
+turns out it was because of :
+ ~if (from.until(LocalDate.now()).getDays > 5) coldLocation else location~
+- in transformBillingStat : dataSource.count = 0 & companyContext (etc...) !=0
+**** ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2020-01-02 to=2020-01-03"
+>>>>>>>> parquetLocation CloudDirLocation(ayl-datawarehouse-adserver-stats-cold,)
+>>>>>>>> base pathgs://ayl-datawarehouse-adserver-stats-cold
+>>>>>>>> from2020-01-02
+>>>>>>>> to2020-01-03
+**** ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2019-12-07 to=2019-12-08"
+>>>>>>>> parquetLocation CloudDirLocation(ayl-datawarehouse-adserver-stats,)
+>>>>>>>> base pathgs://ayl-datawarehouse-adserver-stats
+>>>>>>>> from2019-12-07
+>>>>>>>> to2019-12-08
+** DONE review Alexis PR on scala 2.12
+SCHEDULED: <2020-01-14 mar.>
+:PROPERTIES:
+:ID:       a4eefc55-9ca4-45e8-b9e2-df225a6a3ee4
+:END:
+  [2020-01-13 lun. 15:50]
+
+** DONE [Billing] fix stats
+CLOSED: [2020-01-17 ven. 14:26] SCHEDULED: <2020-01-14 mar.>
+*** The stats are correct on a day basis but are broken on a hour
+*** Query : number of timestamp where hour = 00
+df.withColumn("timestamp", timestamp($"PublishedAt")).select($"publishedat", $"timestamp").where($"timestamp" === "2020-01-10 00:00:00").count
+res2: Long = 98681727
+
+scala> val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-10/hour=00").cache
+df: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [Uid: string, DC: string ... 48 more fields]
+
+scala> df.withColumn("timestamp", timestamp($"PublishedAt")).select($"publishedat", $"timestamp").where($"timestamp" === "2020-01-10 00:00:00").count
+res9: Long = 98681727
+
+scala> df.count()
+res10: Long = 98681727
+
+=> the issue is not with the timestamp fn
+*** The stats are correct on a day basis but are broken on a hour basis
+*** Big offset for the hour 00 and small offset for other hours
+
+*** If timestamp for price pub & price adv then take price pub TS
+*** Don't groupBy attempt
+** DONE find why manadge job fails on the 5th november
+   CLOSED: [2020-01-21 mar. 10:10]
+   [2020-01-15 mer. 11:18]
+   It was because we tried to load the data with the wrong schema.
+   Solution : explicitely specify the
+
+** DONE create ETL job clickers identification
+   CLOSED: [2020-02-05 mer. 14:35]
+   [2020-01-21 mar. 12:05]
+Create a job that load data using date-etl-job context. Need to create a case class that extends a base trait
+for adServerStat, and add annotation in the case class def.
+Only keep adserver where eventKind is visible impression or click
+Name it VisibleImpression.
+*** data are 1.5GB, too much ?
+val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-21/hour=00").cache
+df.groupBy($"Attempt").agg(first($"DC")).count()
+res2: Long = 36760831
+df.where($"EventKind" === "CLICK" || $"EventKind" === "VISIBLE_IMPRESSION").groupBy($"Attempt").agg(first($"DC")).count()
+res3: Long = 417580
+** DONE set date to the 26 in data-etl-job
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-28 mar. 17:14]
+** DONE filter on origin for clickers etl
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-29 mer. 15:15]
+** DONE check if the transform adserver stat job works correctly
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-29 mer. 15:52]
+** DONE reads greg PR on manadge stat
+   CLOSED: [2020-02-11 mar. 09:41]
+   [2020-02-05 mer. 17:18]
+** DONE Make a DagBuilder for data-scala-ml
+   CLOSED: [2020-02-26 mer. 17:31]
+To run make airflow-dev
+   [2020-02-10 lun. 18:46]
+** DONE Refactor dagBuilder (data-scala-ml) + extract timestamp from date (visibleImpression)
+   CLOSED: [2020-02-26 mer. 17:32]
+   [2020-02-11 mar. 17:32]
+** DONE Check rtb transactions
+   CLOSED: [2020-02-26 mer. 17:31]
+   [2020-02-26 mer. 11:43]
+** DONE review alexis PR MLeap model actor serving
+   CLOSED: [2020-03-25 mer. 15:31]
+   [2020-03-03 mar. 18:07]
+** DONE adds run in currencies makefile and use it in data-job-scheduler
+   CLOSED: [2020-03-25 mer. 15:31]
+   [2020-03-23 lun. 11:35]
+
+** Currencies
+*** DONE new dag data job scheduler
+    CLOSED: [2020-03-25 mer. 15:32]
+    [2020-03-25 mer. 15:29]
+*** DONE deploy post gres in kube
+    CLOSED: [2020-03-25 mer. 16:48]
+    [2020-03-25 mer. 15:29]
+*** DONE restore prod data on db
+    CLOSED: [2020-03-27 ven. 16:33]
+    [2020-03-25 mer. 15:30]
+*** IN-PROGRESS schedule job daily
+    [2020-03-25 mer. 15:30]
+* Agenda
+** 2019
+*** 2019-10 octobre
+**** 07/10
+***** worked on bandpass filter test
+  ie filter rare and too frequent users
+  - worked on the test case
+  - worked on integrating bandpass filter
+  filtering takes around 4500ms
+**** 09/10
+***** Successfully loaded tf model in Java ?
+  - Need to test if its working bc the input/output layers given by Alexis throw [IllegalArgumentException: No Operation named [serving_dense_3] in the Graph]
+***** Need to write python script to draw graph from saved model
+**** 10/10
+***** changed some tests in data-common
+
+**** 11/10
+***** successfully loaded the tf model and got the result from the ouput layer
+**** 14/10
+***** DONE need to batch predictions
+      CLOSED: [2019-10-14 lun. 16:01]
+***** DONE need to wrap tf in an akka actor
+      CLOSED: [2019-10-14 lun. 16:01]
+***** DONE set up akka cluster
+      CLOSED: [2019-10-14 lun. 16:24]
+**** 17/10
+***** got back on bandpass filtering
+  flatmapgroups(2000k) in ms
+  - 7000
+  groupBy time (200k) in ms
+  - 11014 Some(JOIN TIME 4981)
+  - reuse group DS : 16000 / 4000
+  - reuse group DS + persist them : 20000 / 5500
+  - reuse group DS + cache them : 18543 JOIN TIME 4914
+
+**** 21/10
+***** DONE make test for ad transform job
+      CLOSED: [2019-10-22 mar. 11:53]
+***** DONE make null value for deprecated field in secor
+      CLOSED: [2019-10-22 mar. 11:53]
+**** 22/10
+***** DONE make test for FileReader / DatedFileReader
+      CLOSED: [2019-10-23 mer. 09:34]
+**** 23/10
+***** DONE use spark shell to write secor data in parquet
+      CLOSED: [2019-10-23 mer. 17:55]
+  then compare with json to find if its faster
+**** 24/10
+**** 25/10
+***** DONE find why spark cant explode with 11.4.1 snapshot
+      CLOSED: [2020-01-08 mer. 10:28]
+*** 2019-11 novembre
+**** 05/11
+***** DONE remove cached file manager / azure FM / listRecursive + clean unused methods
+      CLOSED: [2019-11-14 jeu. 11:03]
+**** 14/11
+***** created class SqlWriter because we don't need a cloudFileManager that needs to be provided with FileWriter
+** 2020
+*** 2020-01 janvier
+**** 2020-01-02 jeudi
+***** fixed a broken regexp that broke in 2020
+dateColumn=(201[0-9]-[0-9]*-[0-9]*) => dateColumn=(2[0-9]{3}-[0-9]*-[0-9]*)
+    Entered on [2020-01-02 jeu. 15:44]
+*** 2020-02 février
+**** 2020-02-03 lundi
+***** finished dockerfile
+    Entered on [2020-02-03 lun. 18:44]
+***** got jenkins almost to work
+    Entered on [2020-02-03 lun. 18:45]
+***** updated my branch on clickers serving with the one of Alexis
+    Entered on [2020-02-03 lun. 18:45]
+**** 2020-02-04 mardi
+***** DONE done company export job
+    Entered on [2020-02-04 mar. 12:07]
+***** DONE fixes permission issue with postgre
+    Entered on [2020-02-04 mar. 16:18]
+***** DONE merged alexis PR but need to fix test issue
+      CLOSED: [2020-02-05 mer. 14:35]
+AYL common version was update but now there is an issue :
+Symbol 'type org.scalatest.funsuite.AnyFunSuiteLike' is missing from the classpath
+    Entered on [2020-02-04 mar. 18:03]
+**** 2020-02-05 mercredi
+***** fixed jenkinsfile for clickers serving
+    Entered on [2020-02-05 mer. 14:31]
+***** Small fix on manadge deal to set the day
+Also had to fix a dependency problem
+    Entered on [2020-02-05 mer. 16:13]
+**** 2020-02-06 jeudi
+***** updated bandpassfilter branch
+had to do a complex rebase
+    Entered on [2020-02-06 jeu. 16:47]
+***** reviewed code for logReg job
+    Entered on [2020-02-06 jeu. 17:10]
+**** 2020-02-07 vendredi
+***** wrote conf for clickers log reg job
+    Entered on [2020-02-07 ven. 13:59]
+***** face issue deduplicate: different file contents found in the following
+    Entered on [2020-02-07 ven. 15:31]
+**** 2020-02-10 lundi
+***** fixes spark deps issues for log reg job
+it was caused by mleap which comes with spark 2.4.0
+    Entered on [2020-02-10 lun. 11:25]
+***** took me all day to fix a deps issue (a spark class was not present in the jar)
+    Entered on [2020-02-10 lun. 18:23]
+***** Finished jenkinsfile ? needs to test on prod/dev env
+    Entered on [2020-02-10 lun. 18:31]
+**** 2020-02-11 mardi
+***** DONE Needs to add a timestamp column in Visibleimpression
+      CLOSED: [2020-03-27 ven. 16:34]
+    Entered on [2020-02-11 mar. 17:00]
+***** finished working on airflow conf for clickers
+***** lost time because i used the wrong cluster conf
+***** DONE see alexis comment on https://github.com/Adyoulike/data-etl-jobs/pull/51#discussion_r377763869
+      CLOSED: [2020-03-27 ven. 16:34]
+related to timestamp in milli
+**** 2020-02-17 lundi
+***** Enriched company table with Country Name + Realm Publisher
+    Entered on [2020-02-17 lun. 11:56]
+***** fix for daily job and postgresql
+    Entered on [2020-02-17 lun. 16:54]
+**** 2020-02-18 mardi
+***** done makes dagbuilder generic (data-common)
+    Entered on [2020-02-18 mar. 14:45]
+***** selectAs type check
+    Entered on [2020-02-18 mar. 14:56]
+**** 2020-02-19 mercredi
+***** fixed incorrect output schema for data-etl-jobs
+    Entered on [2020-02-19 mer. 14:04]
+***** added ccpa metrics
+    Entered on [2020-02-19 mer. 17:09]
+***** finished generic dag builder (etl)
+    Entered on [2020-02-19 mer. 17:09]
+**** 2020-02-20 jeudi
+***** Done realmId and currency in company table PR
+    Entered on [2020-02-20 jeu. 13:45]
+***** began working on curiosity project
+    Entered on [2020-02-20 jeu. 13:45]
+**** 2020-02-21 vendredi
+***** Tested CCPA (it works)
+    Entered on [2020-02-21 ven. 16:54]
+***** worked on curiosity setup (jenkins) with greg
+    Entered on [2020-02-21 ven. 16:54]
+***** started work on auto doc
+    Entered on [2020-02-21 ven. 16:55]
+**** 2020-02-24 lundi
+***** worked on auto doc
+    Entered on [2020-02-24 lun. 14:39]
+***** check ccpa metrics
+    Entered on [2020-02-24 lun. 18:13]
+**** 2020-02-25 mardi
+***** finished ccpa
+    Entered on [2020-02-25 mar. 11:26]
+***** created rtb transaction airflow job
+    Entered on [2020-02-25 mar. 11:26]
+***** updated data-etl-job ver in datawarehouse
+    Entered on [2020-02-25 mar. 18:29]
+**** 2020-02-26 mercredi
+***** worked on curiosity poetry jenkins integration
+    Entered on [2020-02-26 mer. 12:10]
+***** continues working on auto doc
+    Entered on [2020-02-26 mer. 17:32]
+**** 2020-02-27 jeudi
+***** worked on rtb transactions
+    Entered on [2020-02-27 jeu. 13:50]
+***** autodoc + rtb
+    Entered on [2020-02-27 jeu. 17:28]
+***** needs to check if rtb indexation works good
+    Entered on [2020-02-27 jeu. 18:01]
+**** 2020-02-28 vendredi
+***** done jenkinsfile for data-scala-ml
+    Entered on [2020-02-28 ven. 11:53]
+*** 2020-03 mars
+**** 2020-03-02 lundi
+***** worked on curiosity : kafka consumer + producer test
+    Entered on [2020-03-02 lun. 13:43]
+**** 2020-03-03 mardi
+***** done curiosity integration test
+    Entered on [2020-03-03 mar. 11:54]
+***** finished curiosity tests
+    Entered on [2020-03-03 mar. 18:25]
+***** needs to fix Get https://docker.ayl.io/v2/ayl/zookeeper/manifests/3.4.6: no basic auth credentials
+    Entered on [2020-03-03 mar. 18:26]
+**** 2020-03-10 mardi
+***** currencies : done xml parsing + test
+    Entered on [2020-03-10 mar. 14:29]
+***** worked on nn job
+    Entered on [2020-03-10 mar. 16:58]
+**** 2020-03-12 jeudi
+***** worked on sql alchemy
+    Entered on [2020-03-12 jeu. 17:08]
+***** modified integration test for curr
+    Entered on [2020-03-12 jeu. 17:08]
+**** 2020-03-13 vendredi
+***** added platform backup to currnecy integration test
+    Entered on [2020-03-13 ven. 15:33]
+**** 2020-03-16 lundi
+***** fixed git issue
+    Entered on [2020-03-16 lun. 13:58]
+***** done PR for currency
+    Entered on [2020-03-16 lun. 13:59]
+***** done data python utils PR
+    Entered on [2020-03-16 lun. 15:37]
+***** done db insertion for currencies
+    Entered on [2020-03-16 lun. 17:07]
+**** 2020-03-17 mardi
+***** improved auto doc with formula and metric column + wrote doc
+    Entered on [2020-03-17 mar. 15:45]
+***** currencies PR fixes
+    Entered on [2020-03-17 mar. 15:45]
+***** currencies fixes
+    Entered on [2020-03-17 mar. 15:56]
+**** 2020-03-18 mercredi
+***** continues working on doc
+    Entered on [2020-03-18 mer. 16:33]
+***** ask greg about how config python should be
+    Entered on [2020-03-18 mer. 20:15]
+**** 2020-03-19 jeudi
+***** updated data etl doc PR
+    Entered on [2020-03-19 jeu. 11:02]
+***** started to work on preprod db for maxime
+    Entered on [2020-03-19 jeu. 11:02]
+***** worked on preprod db for billing stat
+    Entered on [2020-03-19 jeu. 18:08]
+**** 2020-03-20 vendredi
+***** reviewed PRs
+    Entered on [2020-03-20 ven. 15:18]
+***** merged PR
+    Entered on [2020-03-20 ven. 15:44]
+**** 2020-03-23 lundi
+***** put backup in docker run
+took me all day...
+    Entered on [2020-03-23 lun. 18:54]
+***** data job scheduler PR for currencies
+    Entered on [2020-03-23 lun. 19:38]
+***** how to use secrets ?
+**** 2020-03-24 mardi
+***** fixed currency CI
+    Entered on [2020-03-24 mar. 16:09]
+***** merge data etl doc
+    Entered on [2020-03-24 mar. 16:09]
+***** worked on preprod db for billing
+    Entered on [2020-03-24 mar. 16:28]
+***** started to work on helm chart for currency db
+    Entered on [2020-03-24 mar. 16:40]
+**** 2020-03-25 mercredi
+***** worked on creating db in kube
+    Entered on [2020-03-25 mer. 16:44]
+**** 2020-03-26 jeudi
+***** spent a lot of time with kubernetes bc of postgresql pw issue
+    Entered on [2020-03-26 jeu. 16:54]
+**** 2020-03-27 vendredi
+***** done platform backup
+    Entered on [2020-03-27 ven. 15:37]
+***** faced issue with jenkins basic auth creds
+    Entered on [2020-03-27 ven. 17:19]
+**** 2020-03-30 lundi
+***** put currencies on hold bc of docker creds stuff
+    Entered on [2020-03-30 lun. 16:17]
+***** worked on open auction job
+    Entered on [2020-03-30 lun. 16:18]
+**** 2020-03-31 mardi
+*****  done open auction PR
+    Entered on [2020-03-31 mar. 20:01]
+still needs to test the job
+*** 2020-04 avril
+**** 2020-04-01 mercredi
+***** TODO change open auction job
+    Entered on [2020-04-01 mer. 10:27]
+add isOpenAuction column, and split job output on that column* Notes ADYL
+***** finished open auction PR
+    Entered on [2020-04-01 mer. 16:29]
+***** pr fixes on preprod db billing stat
+    Entered on [2020-04-01 mer. 16:49]
+** Release/PR
+*** Before accepting a PR
+- Check jenkins
+*** Merging the PR
+- Squash and commit
+*** Making the release (dev -> prod)
+- Check jenkins master
+- make release
+- jenkins
+  - old view (arrow at the top)
+  - tag
+  - release num
+  - schedule build
+- update version in Deps.scala
+Jenkins will update the Airflow DAGS, and the Jar in GCS.
+Don't do make airflow-prod as jenkins already does it.
+** Test job
+run cluster en local :
+make create-cluster
+make build
+make push
+./scripts/run_job.sh -s user -j [job]
+** Launch shell
+*** shell
+- make create cluster
+- make shell
+*** gui
+- make ssh tunnel
+- make chrome
+** Bugs
+*** symbol error when make deploy airflow
+remove spark function in job code
+*** no filestystem for scheme "gs"
+create a mock for the fileReader / fileWriter as it may have a GCSServiceWrapper
+*** Option 'basePath' must be a directory
+The cloud dir location (bucket probably) doesn't point to an existing folder (in /tmp) or on GCS.
+Solution :
+- set the correct cloud dir location (ie, look in conf, for ex bucket = "ayl-secor", path = "usa02/ssp_actions_json")
+- verify that the config is correctly loaded
+
+*** Cannot decode from long to double
+Caused by: org.apache.spark.SparkException : java.lang.UnsupportedOperationException: org.apache.parquet.column.values.dictionary.PlainValuesDictionary$PlainLongDictionary
+java.lang.UnsupportedOperationException: org.apache.parquet.column.values.dictionary.PlainValuesDictionary$PlainLongDictionary
+Fix : - the schema when loading the dataset is not correct
+Either don't specify it and let Spark infer it or manually set the schema to the one of the data.
+Then cast the col in the wanted type (in our case cast to double)
+**** fix ?
+Use .as instead .selectAs when taking the DS
+
+override load in adserver then cast priceAdv/pricePub to double
+*** org.apache.spark.sql.AnalysisException: Partition column day not found in schema
+
+*** Intellij is unauthorized to fetch a dep
+NEXUS_USER & NEXUS_PW are set as env variable. However, when Intellij is
+launched by xfce, those env variables are lost. It may works if intellij is
+launched in a terminal. Other solutions : https://superuser.com/questions/597291/xfce-lightdm-startup-configuration-files
+Env variables known by intellij can be seen in run/edit configurations/templates/applications/env variables/browse
+*** sbt assembly: deduplicate *.class
+Deps issue : verify that a dependency overrides is not needed.
+For ex, MLEap comes with Spark 2.4.0 and data-etl-job needs spark 2.4.4 so the fix is :
+#+BEGIN_SRC scala
+dependencyOverrides ++= Seq(
+  "org.apache.spark" %% "spark-tags" % Deps.sparkVersion,
+  "org.apache.spark" %% "spark-mllib-local" % Deps.sparkVersion)
+#+END_SRC
+*** Symbol 'type org.apache.spark.ml.param.Params' is missing from the classpath.
+The lib necessary is not in the classpath/jar; either it's a dependency conflict or an import is missing.
+In this case :
+Adds in build.sbt
+#+BEGIN_SRC scala
+libraryDependencies ++= Seq(
+  ...
+  "org.apache.spark" %% "spark-mllib" % Deps.sparkVersion % Provided,)
+#+END_SRC
+The provided is important.
+*** When running a job : java.lang.NoSuchMethodError: scala.Predef$.refArrayOps([Ljava/lang/Object;)[Ljava/lang/Object
+Updates the clusters spec in create-cluster task (makefile)
+** Update a dag
+- make build publish-dev deploy-dev
+- in airflow dag : mark task as success
+- wait a moment...
+** Access old adserver stat
+bucket : ayl-datawarehouse-adserver-stats-cold
+
+** Stat description
+*** Visitor
+Visitor represents the website a user has visited. It's set with cookies.
+For ex, when a user goes to a website A, we put a cookie in the user browser,
+and when he goes to a website B, we also put a cookie.
+So we have cookies with A and B for this user, so its visitor value will be [A, B].
+** kube/docker
+*** switch kubectl context to datateam project
+gcloud container clusters get-credentials ci --zone europe-west1-d --project datateam-199811
+*** list
+* Useful ADYL CMD
+** read adserver ds in spark shell
+val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-08/hour=00").cache
+** count occ when grouping by attempt
+Seq("Visitor").foreach{s => println("************\n" + s); val res = df.groupBy("attempt").agg(F.collect_set(F.col(s)).as("visitorCount")).where(F.size($"visitorCount") > 1).cache; res.show(500, false); println(res.count); res.unpersist()}
+t
+
+** query kafka
+curl https://$KAFKA_USER:$KAFKA_PW@kafka-json-tap-fra02.ayl.io/\?topic=adserver_stats\&sample=1
+* Stories
+** Tensorflow Java support
+*** Goal
+ Loading a tensorflow model in Java and making predictions with that model
+ The model is the one that predicts the winning bid for an auction
+**** Requirements
+*** Supported Platforms
+ - Ubuntu 16.04 or higher; 64-bit, x86
+ - macOS 10.12.6 (Sierra) or higher
+ - Windows 7 or higher; 64-bit, x86
+
+*** Process
+**** Docker image CPU
+ To build the binary image
+
+**** Load model
+**** Test model
+**** TODO Load TF library
+**** TODO close TF graph
+ https://www.programcreek.com/java-api-examples/?api=org.tensorflow.SavedModelBundle
+*** Alternatives
+**** Use MLeap
+ - MLeap is compatible with Tensorflow.
+ - However, the TF runtime is still needed (see https://mleap-docs.combust.ml/getting-started/)
+
+** Auto doc
+*** Goal
+Creates an auto doc framework
+*** Scope
+For the moment, fields in table should be document (for ex BillingStat records)
+*** Process
+- Annotates fields in case class (@Doc("..."))
+- Parse all annotated fields, for each :
+  - Gets the case class of the field (ie, the table)
+- For each case class (table) :
+  - creates an HTML table
+  - for each field in that table:
+    - creates a row in the table with :
+      - name
+      - description

@@ -1,5 +1,6 @@
 (use-package org-bullets)
 
+(setq org-directory (expand-file-name "org-files" user-emacs-directory))
 (setq org-log-done 'time)
 
 (add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
@@ -70,8 +71,11 @@
 (defun bb-org-evaluate-and-next ()
   (interactive)
   (call-interactively 'org-ctrl-c-ctrl-c)
-  (org-babel-next-src-block)
-)
+  (org-babel-next-src-block))
+
+(defun bb-org-rifle ()
+  (interactive)
+  (helm-org-rifle-directories (expand-file-name "modules" user-emacs-directory)))
 
 (mode-leader org-mode-map
   "g" 'counsel-org-goto
