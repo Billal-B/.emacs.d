@@ -1,3 +1,4 @@
+
 (defun bb-eshell-projectile-here ()
   (interactive)
   (let ((project (projectile-project-root)))

@@ -1,5 +1,7 @@
 (use-package virtualenvwrapper)
+
 (use-package eshell-toggle)
+(use-package hide-mode-line)
 
 (use-package eshell-prompt-extras
   :config
@@ -57,7 +59,8 @@ code of the process and OUTPUT is its stdout output."
 (defun +eshell-default-prompt-fn ()
   "Generate the prompt string for eshell. Use for `eshell-prompt-function'."
   (require 'shrink-path)
-  (concat (let ((pwd (eshell/pwd)))
+  (concat "\n -> "
+	  (let ((pwd (eshell/pwd)))
             (propertize pwd
                         'face '+eshell-prompt-pwd))
           (propertize (+eshell--current-git-branch)
@@ -65,6 +68,13 @@ code of the process and OUTPUT is its stdout output."
           "\n"
           (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
           " "))
+
+(defun bb-eshell-projectile-here ()
+  (interactive)
+  (let ((project (projectile-project-root)))
+    (if project
+        (projectile-with-default-dir project (eshell-toggle))
+      (eshell-toggle))))
 
 (setq eshell-banner-message
       '(format "%s %s\n"

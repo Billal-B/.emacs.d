@@ -90,4 +90,8 @@
  "RET" 'helm-resume
  "!" 'helm-company
  "M-x" 'helm-M-x ; useful in cases of bugs
+ "<right>" 'evil-window-move-far-right
+ "<left>" 'evil-window-move-far-left
+ "<up>" 'evil-window-move-very-top
+ "<down>" 'evil-window-move-very-bottom
  )

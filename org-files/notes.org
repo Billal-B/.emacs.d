@@ -1,0 +1,135 @@
+* ADYL
+** CMD
+*** read adserver ds in spark shell
+ val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-08/hour=00").cache
+*** count occ when grouping by attempt
+ Seq("Visitor").foreach{s => println("************\n" + s); val res = df.groupBy("attempt").agg(F.collect_set(F.col(s)).as("visitorCount")).where(F.size($"visitorCount") > 1).cache; res.show(500, false); println(res.count); res.unpersist()}
+ t
+*** query kafka
+ curl https://$KAFKA_USER:$KAFKA_PW@kafka-json-tap-fra02.ayl.io/\?topic=adserver_stats\&sample=1
+** Notes
+*** Release/PR
+**** Before accepting a PR
+ - Check jenkins
+**** Merging the PR
+ - Squash and commit
+**** Making the release (dev -> prod)
+ - Check jenkins master
+ - make release
+ - jenkins
+   - old view (arrow at the top)
+   - tag
+   - release num
+   - schedule build
+ - update version in Deps.scala
+ Jenkins will update the Airflow DAGS, and the Jar in GCS.
+ Don't do make airflow-prod as jenkins already does it.
+*** Test job
+ run cluster en local :
+ make create-cluster
+ make build
+ make push
+ ./scripts/run_job.sh -s user -j [job]
+*** Launch shell
+**** shell
+ - make create cluster
+ - make shell
+**** gui
+ - make ssh tunnel
+ - make chrome
+*** Bugs
+**** symbol error when make deploy airflow
+ remove spark function in job code
+**** no filestystem for scheme "gs"
+ create a mock for the fileReader / fileWriter as it may have a GCSServiceWrapper
+**** Option 'basePath' must be a directory
+ The cloud dir location (bucket probably) doesn't point to an existing folder (in /tmp) or on GCS.
+ Solution :
+ - set the correct cloud dir location (ie, look in conf, for ex bucket = "ayl-secor", path = "usa02/ssp_actions_json")
+ - verify that the config is correctly loaded
+
+**** Cannot decode from long to double
+ Caused by: org.apache.spark.SparkException : java.lang.UnsupportedOperationException: org.apache.parquet.column.values.dictionary.PlainValuesDictionary$PlainLongDictionary
+ java.lang.UnsupportedOperationException: org.apache.parquet.column.values.dictionary.PlainValuesDictionary$PlainLongDictionary
+ Fix : - the schema when loading the dataset is not correct
+ Either don't specify it and let Spark infer it or manually set the schema to the one of the data.
+ Then cast the col in the wanted type (in our case cast to double)
+***** fix ?
+ Use .as instead .selectAs when taking the DS
+
+ override load in adserver then cast priceAdv/pricePub to double
+**** org.apache.spark.sql.AnalysisException: Partition column day not found in schema
+
+**** Intellij is unauthorized to fetch a dep
+ NEXUS_USER & NEXUS_PW are set as env variable. However, when Intellij is
+ launched by xfce, those env variables are lost. It may works if intellij is
+ launched in a terminal. Other solutions : https://superuser.com/questions/597291/xfce-lightdm-startup-configuration-files
+ Env variables known by intellij can be seen in run/edit configurations/templates/applications/env variables/browse
+**** sbt assembly: deduplicate *.class
+ Deps issue : verify that a dependency overrides is not needed.
+ For ex, MLEap comes with Spark 2.4.0 and data-etl-job needs spark 2.4.4 so the fix is :
+ #+BEGIN_SRC scala
+ dependencyOverrides ++= Seq(
+   "org.apache.spark" %% "spark-tags" % Deps.sparkVersion,
+   "org.apache.spark" %% "spark-mllib-local" % Deps.sparkVersion)
+ #+END_SRC
+**** Symbol 'type org.apache.spark.ml.param.Params' is missing from the classpath.
+ The lib necessary is not in the classpath/jar; either it's a dependency conflict or an import is missing.
+ In this case :
+ Adds in build.sbt
+ #+BEGIN_SRC scala
+ libraryDependencies ++= Seq(
+   ...
+   "org.apache.spark" %% "spark-mllib" % Deps.sparkVersion % Provided,)
+ #+END_SRC
+ The provided is important.
+**** When running a job : java.lang.NoSuchMethodError: scala.Predef$.refArrayOps([Ljava/lang/Object;)[Ljava/lang/Object
+ Updates the clusters spec in create-cluster task (makefile)
+*** Update a dag
+ - make build publish-dev deploy-dev
+ - in airflow dag : mark task as success
+ - wait a moment...
+*** Access old adserver stat
+ bucket : ayl-datawarehouse-adserver-stats-cold
+
+*** Stat description
+**** Visitor
+ Visitor represents the website a user has visited. It's set with cookies.
+ For ex, when a user goes to a website A, we put a cookie in the user browser,
+ and when he goes to a website B, we also put a cookie.
+ So we have cookies with A and B for this user, so its visitor value will be [A, B].
+*** kube/docker
+**** switch kubectl context to datateam project
+ gcloud container clusters get-credentials ci --zone europe-west1-d --project datateam-199811
+**** list
+*** Notes Scala
+**** Akka
+***** At most one msg processed per actor
+  https://doc.akka.io/docs/akka/current/guide/actors-intro.html
+**** Spark
+***** UDF Error : Caused by: java.lang.ClassCastException: scala.collection.mutable.WrappedArray$ofRef cannot be cast to org.apache.spark.sql.Row
+  Structures (ie case classes) can be converted to Row by Spark.
+  So to create a UDF that takes a case class as argument, give it a row instead of the case class:
+  val eventCount = udf((eventKindPublishedAt: Row, eventKind: String) <- it works
+  val eventCount = udf((eventKindPublishedAt: EventKind, eventKind: String) <- doesn't work
+  In the same vein, to give as argument an array of struct :
+  val eventCount = udf((eventKindPublishedAt: Seq[Row], eventKind: String) <- works
+  val eventCount = udf((eventKindPublishedAt: Seq[EventKind], eventKind: String) <- doesn't work
+
+  Note : Row values can be extracted either by pattern matching or with _.getString / _.getInt / ...
+* Notes
+** Restart emacs launch as a daemon by systemctl
+systemctl --user restart emacs.service
+** Good img processor on Linux ImageMagick GUI (display q16)
+** No <> symbols on keyboard
+> : ALT + SHIFT + X
+< : ALT + SHIFT + Z
+** 2020
+*** 2020-05 mai
+**** 2020-05-04 lundi
+** Others
+** TODO emacs plugin to switch between windows in a list
+   [2020-01-30 jeu. 10:28]
+** TODO emacs sql plugin
+https://github.com/kostafey/ejc-sql#create-connections-interactively
+   [2020-03-23 lun. 19:33]

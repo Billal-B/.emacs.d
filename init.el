@@ -75,9 +75,11 @@
 
 ;; lang
 (load-org-module "clojure.org")
+(load-org-module "python.org")
 
 ;; editor
 (load-org-module "projectile.org")
+(load-org-module "smartparens.org")
 (load-org-module "appearance.org")
 (load-org-module "commander.org")
 

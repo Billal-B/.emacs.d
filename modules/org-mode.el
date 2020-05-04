@@ -15,15 +15,15 @@
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
 (setq org-agenda-files (directory-files-recursively "~/org-files/" "\.org$"))
+(setq org-capture-dir (expand-file-name "org-files" user-emacs-directory))
 
+;; TODO don't use hard written folder for captures
 (setq org-capture-templates
-      '(("t" "Todo (ADYL)" entry (file+headline "~/org-files/agenda-adyl.org" "ADYL")
+      '(("t" "Todo (ADYL)" entry (file+headline "~/.emacs.d/org-files/agenda-adyl.org" "TODOS")
 	 "* TODO %?\n  %U\n")
-	("T" "Todo" entry (file+headline "~/org-files/agenda.org" "Others")
-	 "* TODO %?\n  %U\n")
-	("b" "BB" entry (file+datetree "~/org-files/bb.org" "Journal")
+	("a" "Agenda (ADYL)" entry (file+datetree "~/.emacs.d/org-files/agenda-adyl.org" "Agenda")
 	 "* %?\nEntered on %U\n")
-	("a" "Agenda" entry (file+datetree "~/org-files/agenda-adyl.org" "Agenda")
+	("n" "Note" entry (file+datetree "~/.emacs.d/org-files/notes.org" "Notes")
 	 "* %?\nEntered on %U\n")))
 (setq org-agenda-skip-scheduled-if-done t
       org-agenda-skip-deadline-if-done t

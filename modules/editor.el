@@ -15,3 +15,10 @@
   :hook ((prog-mode . symbol-overlay-mode)
          (iedit-mode . (lambda () (symbol-overlay-mode -1)))
          (iedit-mode-end . symbol-overlay-mode)))
+
+(use-package pcre2el)
+(use-package visual-regexp-steroids
+  :bind ("M-%" . vr/query-replace))
+(require 'visual-regexp-steroids)
+
+(global-auto-revert-mode 1)

@@ -2,7 +2,6 @@
 #+begin_src emacs-lisp
 (use-package smartparens)
 #+end_src
-
 * Configuration
 ** General
 #+begin_src emacs-lisp

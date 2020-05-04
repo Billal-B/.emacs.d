@@ -20,26 +20,32 @@
 #+end_src
 ** Disable evils in some modes
 #+begin_src emacs-lisp
-(evil-set-initial-state 'dashboard-mode 'emacs)
-(evil-set-initial-state 'edebug-mode 'emacs)
-(evil-set-initial-state 'term-mode 'emacs)
-(evil-set-initial-state 'magit-mode 'emacs)
-(evil-set-initial-state 'dired-mode 'emacs)
-(evil-set-initial-state 'docker-image-mode 'emacs)
-(evil-set-initial-state 'docker-container-mode 'emacs)
-(evil-set-initial-state 'docker-volume-mode 'emacs)
-(evil-set-initial-state 'docker-network-mode 'emacs)
-(evil-set-initial-state 'help-mode 'emacs)
-(evil-set-initial-state 'help-mode 'emacs)
-(evil-set-initial-state 'xref--xref-buffer-mode 'emacs)
-(evil-set-initial-state 'kubernetes-mode 'emacs)
-(evil-set-initial-state 'flycheck-error-list-mode 'emacs)
+(setq evil-default-state 'insert)
+
+(evil-set-initial-state 'dashboard-mode 'insert)
+(evil-set-initial-state 'edebug-mode 'insert)
+(evil-set-initial-state 'term-mode 'insert)
+(evil-set-initial-state 'magit-mode 'insert)
+(evil-set-initial-state 'dired-mode 'insert)
+(evil-set-initial-state 'docker-image-mode 'insert)
+(evil-set-initial-state 'docker-container-mode 'insert)
+(evil-set-initial-state 'docker-volume-mode 'insert)
+(evil-set-initial-state 'docker-network-mode 'insert)
+(evil-set-initial-state 'help-mode 'insert)
+(evil-set-initial-state 'help-mode 'insert)
+(evil-set-initial-state 'xref--xref-buffer-mode 'insert)
+(evil-set-initial-state 'kubernetes-mode 'insert)
+(evil-set-initial-state 'flycheck-error-list-mode 'insert)
 (evil-set-initial-state 'text-mode 'insert)
-(evil-set-initial-state 'cider-repl-mode 'emacs)
-(evil-set-initial-state 'cider-inspector-mode 'emacs)
-(evil-set-initial-state 'edebug-mode 'emacs)
-(evil-set-initial-state 'treemacs-mode 'emacs)
+(evil-set-initial-state 'cider-repl-mode 'insert)
+(evil-set-initial-state 'cider-inspector-mode 'insert)
+(evil-set-initial-state 'edebug-mode 'insert)
+(evil-set-initial-state 'treinsert-mode 'insert)
+(evil-set-initial-state 'org-mode 'insert)
 #+end_src
+
+#+RESULTS:
+| org-mode | treinsert-mode | edebug-mode | cider-inspector-mode | cider-repl-mode | text-mode | flycheck-error-list-mode | kubernetes-mode | xref--xref-buffer-mode | help-mode | docker-network-mode | docker-volume-mode | docker-container-mode | docker-image-mode | dired-mode | magit-mode | term-mode | dashboard-mode | comint-mode | erc-mode | eshell-mode | geiser-repl-mode | gud-mode | inferior-apl-mode | inferior-caml-mode | inferior-emacs-lisp-mode | inferior-j-mode | inferior-python-mode | inferior-scheme-mode | inferior-sml-mode | internal-ange-ftp-mode | prolog-inferior-mode | reb-mode | shell-mode | slime-repl-mode | wdired-mode |
 
 ** enable M-. in normal mode
 #+begin_src emacs-lisp
@@ -50,8 +56,8 @@
 
 ** Cursors
 #+begin_src emacs-lisp
-(setq evil-insert-state-cursor 'hbar)
-(setq evil-emacs-state-cursor 'bar)
+(setq evil-insert-state-cursor 'bar)
+(setq evil-emacs-state-cursor 'hbar)
 #+end_src
 
 ** Multiple cursors : evil-mc
