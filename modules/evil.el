@@ -9,6 +9,8 @@
 
 (setq evil-want-fine-undo t)
 
+(setq evil-insert-state-map (make-sparse-keymap))
+
 (evil-set-initial-state 'dashboard-mode 'emacs)
 (evil-set-initial-state 'edebug-mode 'emacs)
 (evil-set-initial-state 'term-mode 'emacs)
@@ -59,3 +61,6 @@
 (define-key evil-normal-state-map (kbd "q") 'nil)
 (define-key evil-normal-state-map (kbd "Q") 'evil-record-macro)
 (define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
+
+(define-key evil-insert-state-map (kbd "C-o") 'evil-jump-backward)
+(define-key evil-insert-state-map (kbd "C-i") 'evil-jump-forward)

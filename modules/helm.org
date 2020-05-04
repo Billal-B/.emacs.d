@@ -7,9 +7,9 @@
 ** Icons support
 *Warning* must be placed before helm is loaded
  #+begin_src emacs-lisp
-   (use-package treemacs)
-   (require 'helm-treemacs-icons)
-   (helm-treemacs-icons-enable)
+ (use-package treemacs)
+ (require 'helm-treemacs-icons)
+ (helm-treemacs-icons-enable)
  #+end_src
 * Configuration
 #+begin_src emacs-lisp

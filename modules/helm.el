@@ -1,5 +1,6 @@
 (use-package helm)
 (use-package helm-projectile)
+(use-package helm-ag)
 
 (use-package treemacs)
 (require 'helm-treemacs-icons)

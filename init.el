@@ -61,11 +61,12 @@
 (load-org-module "utils.org")
 (load-org-module "core.org")
 (load-org-module "exec-path.org")
+(load-org-module "editor.org")
 
 ;; completion
 (load-org-module "company.org")
-;; (load-org-module "helm.org")
-(load-org-module "ivy.org")
+(load-org-module "helm.org")
+;; (load-org-module "ivy.org")
 
 ;; tools
 (load-org-module "org-mode.org")

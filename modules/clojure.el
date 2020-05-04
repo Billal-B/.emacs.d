@@ -1,1 +1,22 @@
 (use-package cider)
+(use-package cider-hydra
+  :config
+  (add-hook 'clojure-mode-hook #'cider-hydra-mode))
+
+(mode-leader cider-mode-map
+ "ù" 'cider-test-rerun-test
+ "d" 'cider-hydra-doc/body
+ "e" 'cider-hydra-eval/body
+ "r" 'cider-hydra-repl/body
+ "u" 'cider-hydra-test/body
+ "T" 'cider-test-rerun-failed-tests
+ "t" 'cider-test-run-test)
+(general-define-key
+ :states 'normal
+ :keymaps 'cider-mode-map
+ "!" 'cider-eval-last-sexp
+ "§" 'cider-eval-last-sexp-in-context)
+(general-define-key
+ :states '(insert emacs)
+ :keymaps 'cider-mode-map
+ "C-:" 'company-complete)

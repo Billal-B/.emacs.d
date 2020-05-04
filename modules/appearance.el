@@ -1,28 +1,36 @@
-(use-package doom-themes)
-
 (setq recentf-exclude (org-agenda-files))
 (use-package dashboard
   :ensure t
   :config
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
 
-(setq dashboard-center-content t)
-(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-(setq show-week-agenda-p t)
-(setq dashboard-items '((recents  . 10)
-                        (projects . 10)
-                        (agenda . 5)))
-(setq dashboard-set-heading-icons t)
-(setq dashboard-set-file-icons t)
-(setq dashboard-set-navigator t)
-(setq dashboard-set-footer nil)
+  (setq dashboard-center-content t)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq show-week-agenda-p t)
+  (setq dashboard-items '((recents  . 10)
+		   (projects . 10)
+		   (agenda . 5)))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-set-navigator t)
+  (setq dashboard-set-footer nil)
+
+  ;; fixes a bug where dashboard lines takes two lines
+  (set-fontset-font "fontset-default"
+	   (cons page-break-lines-char page-break-lines-char)
+	   (face-attribute 'default :family)))
 
 (use-package centaur-tabs
   :demand
   :config
   (centaur-tabs-mode t)
   (setq centaur-tabs-set-icons t)
-  (centaur-tabs-group-by-projectile-project))
+  (setq centaur-tabs-cycle-scope 'tabs)
+  (centaur-tabs-group-by-projectile-project)
+  (setq centaur-tabs-adjust-buffer-order t)
+  :bind
+  ("C-²" . centaur-tabs-forward)
+  ("C-~" . centaur-tabs-backward))
 
 (use-package all-the-icons)
 (use-package all-the-icons-dired
@@ -35,7 +43,18 @@
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
   :ensure t)
 
-(load-theme 'doom-dracula t)
+;; (use-package doom-themes
+;;   :config
+;;   (load-theme 'doom-dracula t))
+
+(use-package parchment-theme
+  :config
+  (load-theme 'parchment t)
+  (set-face-attribute 'font-lock-function-name-face nil :weight 'semi-bold)
+  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
 
 ;; required for doom-modeline
 (use-package ghub)
@@ -72,8 +91,8 @@
 ;;                 (feebleline-mode 1))
 
 (set-face-attribute 'default nil
-		    :family "IBM Plex Mono"
-		    :foundry "IBM"
+		    :family "ibm plex mono"
+		    :foundry "ibm"
 		    :slant 'normal
 		    :weight 'normal :height 98
 		    :width 'normal)

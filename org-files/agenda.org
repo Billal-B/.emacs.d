@@ -17,6 +17,9 @@ Note : Row values can be extracted either by pattern matching or with _.getStrin
 ** Restart emacs launch as a daemon by systemctl
 systemctl --user restart emacs.service
 ** Good img processor on Linux ImageMagick GUI (display q16)
+** No <> symbols on keyboard
+> : ALT + SHIFT + X
+< : ALT + SHIFT + Z
 * Others
 ** TODO emacs plugin to switch between windows in a list
    [2020-01-30 jeu. 10:28]
