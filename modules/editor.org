@@ -31,3 +31,7 @@
 #+begin_src emacs-lisp
 (global-auto-revert-mode 1)
 #+end_src
+** TODO [fix this] Dired
+#+begin_src emacs-lisp
+(setq dired-listing-switches "-la")
+#+end_src

@@ -461,3 +461,6 @@ add isOpenAuction column, and split job output on that column* Notes ADYL
     Entered on [2020-05-04 lun. 15:34]
 ***** made auto doc (upload confluence) PR
     Entered on [2020-05-04 lun. 20:39]
+**** 2020-05-05 mardi
+***** worked on data-python-utils and ssp-creatives-watcher CI
+    Entered on [2020-05-05 mar. 15:45]
