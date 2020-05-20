@@ -19,6 +19,15 @@
          (iedit-mode . (lambda () (symbol-overlay-mode -1)))
          (iedit-mode-end . symbol-overlay-mode)))
 #+end_src
+** flycheck : Enable nice rendering of diagnostics like compile errors
+#+begin_src emacs-lisp
+(use-package flycheck
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+  :custom
+  (flycheck-display-errors-delay .3))
+#+end_src
 ** Replace (M-%) : visual replace and better regexp support
 #+begin_src emacs-lisp
 (use-package pcre2el)
@@ -26,12 +35,36 @@
   :bind ("M-%" . vr/query-replace))
 (require 'visual-regexp-steroids)
 #+end_src
+** YAML
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :config
+  (require 'yaml-mode)
+    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+#+end_src
+** Dockerfile
+#+begin_src emacs-lisp
+(use-package dockerfile-mode
+  :config
+  (require 'dockerfile-mode)
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+#+end_src
 * Configuration
 ** General
 #+begin_src emacs-lisp
 (global-auto-revert-mode 1)
 #+end_src
+** ediff
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
 ** TODO [fix this] Dired
 #+begin_src emacs-lisp
 (setq dired-listing-switches "-la")
 #+end_src
+** eldoc
+#+begin_src emacs-lisp
+(global-eldoc-mode -1)
+(setq eldoc-echo-area-use-multiline-p nil)
+#+end_src
+* Bindings

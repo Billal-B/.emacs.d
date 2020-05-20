@@ -12,20 +12,21 @@
  (helm-treemacs-icons-enable)
  #+end_src
 * Configuration
+** General
 #+begin_src emacs-lisp
-  (require 'helm-config)
-  (require 'helm-projectile)
+(require 'helm-config)
+(require 'helm-projectile)
 
-  (helm-mode 1)
+(helm-mode 1)
 
-  (customize-set-variable 'helm-ff-lynx-style-map t) ; allow going up/down dir with helm using arrow keys
-  (setq helm-display-header-line t
-	helm-autoresize-mode t
-	helm-autoresize-min-height 20
-	helm-autoresize-max-height 40
-	helm-move-to-line-cycle-in-source nil
-	helm-allow-mouse t
-	helm-prevent-escaping-from-minibuffer nil)
+(customize-set-variable 'helm-ff-lynx-style-map t) ; allow going up/down dir with helm using arrow keys
+(setq helm-display-header-line t
+      helm-autoresize-mode t
+      helm-autoresize-min-height 20
+      helm-autoresize-max-height 40
+      helm-move-to-line-cycle-in-source nil
+      helm-allow-mouse t
+      helm-prevent-escaping-from-minibuffer nil)
 #+end_src
 ** Eshell enhancements
 #+begin_src emacs-lisp
@@ -39,6 +40,19 @@
 #+begin_src emacs-lisp
   (setq projectile-completion-system 'helm)
   (helm-projectile-on)
+#+end_src
+** Appearance
+#+begin_src emacs-lisp
+;; (use-package helm-posframe
+;;   :config
+;;   (helm-posframe-enable)
+;;   (setq helm-posframe-parameters
+;; 	'((left-fringe . 10)
+;; 	  (right-fringe . 10)))
+;;   (setq helm-posframe-poshandler 'posframe-poshandler-frame-center))
+(setq helm-display-function 'helm-display-buffer-in-own-frame
+      helm-display-buffer-reuse-frame nil
+      helm-use-undecorated-frame-option t)
 #+end_src
 * Bindings
 #+begin_src emacs-lisp

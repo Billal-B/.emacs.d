@@ -3,9 +3,10 @@
 (use-package hercules)
 
 (require 'general)
+(require 'doom) ;; loads some doom functions located in lisp/doom.el
 
 (global-hi-lock-mode t)
-(global-hl-line-mode t)
+(global-hl-line-mode 1)
 (electric-pair-mode t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)

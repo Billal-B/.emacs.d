@@ -29,6 +29,17 @@
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
 
+;; (use-package helm-posframe
+;;   :config
+;;   (helm-posframe-enable)
+;;   (setq helm-posframe-parameters
+;; 	'((left-fringe . 10)
+;; 	  (right-fringe . 10)))
+;;   (setq helm-posframe-poshandler 'posframe-poshandler-frame-center))
+(setq helm-display-function 'helm-display-buffer-in-own-frame
+      helm-display-buffer-reuse-frame nil
+      helm-use-undecorated-frame-option t)
+
 (general-define-key
  "C-x C-f" 'helm-find-files
  "M-x" 'helm-M-x

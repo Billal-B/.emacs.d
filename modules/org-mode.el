@@ -1,10 +1,17 @@
 (use-package org-bullets)
+(use-package grip-mode)
+(use-package ox-gfm
+  :config
+  (eval-after-load "org"
+  '(require 'ox-gfm nil t)))
 
 (setq org-directory (expand-file-name "org-files" user-emacs-directory))
 (setq org-log-done 'time)
 
 (add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . org-mode))
 
 (setq org-edit-src-content-indentation 0)
 (setq org-confirm-babel-evaluate nil)
@@ -78,6 +85,8 @@
   (helm-org-rifle-directories (expand-file-name "modules" user-emacs-directory)))
 
 (mode-leader org-mode-map
+  "f" 'org-gfm-convert-region-to-md
+  "F" 'grip-mode
   "g" 'counsel-org-goto
   "G" 'counsel-org-goto-all
   "!" 'bb-org-evaluate-and-next

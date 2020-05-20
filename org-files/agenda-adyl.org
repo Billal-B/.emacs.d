@@ -464,3 +464,26 @@ add isOpenAuction column, and split job output on that column* Notes ADYL
 **** 2020-05-05 mardi
 ***** worked on data-python-utils and ssp-creatives-watcher CI
     Entered on [2020-05-05 mar. 15:45]
+***** finished data-python-utils
+    Entered on [2020-05-05 mar. 17:49]
+**** 2020-05-11 lundi
+***** fixes ssp creative watcher routes & db
+    Entered on [2020-05-11 lun. 15:40]
+***** worked on creative watcher consumer 
+but there are no proto atm
+    Entered on [2020-05-11 lun. 18:46]
+**** 2020-05-12 mardi
+***** fixed creative consumer (but still no proto)
+    Entered on [2020-05-12 mar. 16:56]
+**** 2020-05-13 mercredi
+***** ssp-creative watcher consumer : Adds proto decoding + adds kafka integration test
+    Entered on [2020-05-13 mer. 18:26]
+**** 2020-05-14 jeudi
+***** read craig code
+    Entered on [2020-05-14 jeu. 17:51]
+**** 2020-05-18 lundi
+***** worked on creative watcher consumer integration test
+    Entered on [2020-05-18 lun. 11:22]
+**** 2020-05-19 mardi
+***** done merging integration tests
+    Entered on [2020-05-19 mar. 19:21]

@@ -1,0 +1,126 @@
+* Packages
+** lsp-mode
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :requires hydra helm helm-lsp
+  :hook
+  (lsp-mode . lsp-lens-mode)
+  :config (setq lsp-prefer-flymake nil))
+
+;; lsp-mode supports snippets, but in order for them to work you need to use yasnippet
+;; If you don't want to use snippets set lsp-enable-snippet to nil in your lsp-mode settings
+;;   to avoid odd behavior with snippets and indentation
+(use-package yasnippet)
+
+(use-package company-lsp
+  :config
+  (require 'company-lsp)
+  (push 'company-lsp company-backends))
+#+end_src
+** lsp-ui
+#+begin_src emacs-lisp
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (lsp-ui-imenu-enable nil)
+  (lsp-ui-peek-enable t)
+  (setq lsp-ui-doc-mode nil
+        lsp-ui-doc-position 'bottom
+        lsp-ui-doc-alignment 'window
+        lsp-ui-doc-include-signature nil
+        lsp-ui-sideline-mode nil
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-sideline-show-symbol t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-imenu-enable t
+        lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
+                              ,(face-foreground 'font-lock-string-face)
+                              ,(face-foreground 'font-lock-constant-face)
+                              ,(face-foreground 'font-lock-variable-name-face)))
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  (define-key lsp-ui-mode-map (kbd "C-q") 'lsp-ui-doc-glance)
+  (define-key lsp-ui-mode-map (kbd "<C-mouse-1>") 'lsp-find-references))
+
+(use-package helm-lsp
+  :config
+  (define-key lsp-ui-mode-map (kbd "M-n") 'helm-lsp-workspace-symbol))
+#+end_src
+** Debug : dap-mode
+#+begin_src emacs-lisp
+(use-package posframe
+  ;; Posframe is a pop-up tool that must be manually installed for dap-mode
+  :ensure t)
+
+(use-package dap-mode
+  :functions dap-hydra/nil
+  :diminish
+  :config
+  ;; enables mouse hover support
+  (dap-tooltip-mode 1)
+  ;; use tooltips for mouse hover
+  ;; if it is not enabled `dap-mode' will use the minibuffer.
+  (tooltip-mode 1)
+  :bind (:map lsp-mode-map
+              ("<f5>" . dap-debug)
+              ("M-<f5>" . dap-hydra))
+  :hook ((after-init . dap-mode)
+         (dap-mode . dap-ui-mode)
+         (dap-session-created . (lambda (_args) (dap-hydra)))
+         (dap-stopped . (lambda (_args) (dap-hydra)))
+         (dap-terminated . (lambda (_args) (dap-hydra/nil)))
+
+         (python-mode . (lambda () (require 'dap-python)))
+         (ruby-mode . (lambda () (require 'dap-ruby)))
+         (go-mode . (lambda () (require 'dap-go)))
+         (java-mode . (lambda () (require 'dap-java)))
+         ((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-lldb)))
+         (php-mode . (lambda () (require 'dap-php)))
+         (elixir-mode . (lambda () (require 'dap-elixir)))
+         ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
+         (powershell-mode . (lambda () (require 'dap-pwsh)))))
+#+end_src
+
+* Configuration
+** Enables lsp in those languages
+*** Python
+#+begin_src emacs-lisp
+;; lsp python
+(add-hook 'python-mode-hook #'lsp-deferred)
+(require 'dap-python)
+#+end_src
+* Bindings
+** TODO [bind] hydra
+#+begin_src emacs-lisp
+(defhydra hydra-lsp (:exit t :hint nil)
+  "
+ Buffer^^               Server^^                   Symbol
+-------------------------------------------------------------------------------------
+ [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
+ [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
+ [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature
+ [_l_] flycheck-list
+"
+  ("d" lsp-find-declaration)
+  ("D" lsp-ui-peek-find-definitions)
+  ("R" lsp-ui-peek-find-references)
+  ("i" lsp-ui-peek-find-implementation)
+  ("t" lsp-find-type-definition)
+  ("s" lsp-signature-help)
+  ("o" lsp-describe-thing-at-point)
+  ("r" lsp-rename)
+  ("l" lsp-ui-flycheck-list)
+
+  ("f" lsp-format-buffer)
+  ("m" lsp-ui-imenu)
+  ("x" lsp-execute-code-action)
+
+  ("M-s" lsp-describe-session)
+  ("M-r" lsp-restart-workspace)
+  ("S" lsp-shutdown-workspace))
+
+(global-set-key (kbd "<f11>") 'hydra-lsp/body)
+#+end_src

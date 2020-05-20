@@ -7,7 +7,7 @@
 (require 'evil-mc)
 (evil-mode 1)
 
-(setq evil-want-fine-undo t)
+(setq evil-want-fine-undo nil)
 
 (setq evil-insert-state-map (make-sparse-keymap))
 
