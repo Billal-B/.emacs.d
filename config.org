@@ -98,6 +98,44 @@
 (global-eldoc-mode -1)
 (setq eldoc-echo-area-use-multiline-p nil)
 #+end_src
+** Smarter ctrl backspace
+#+begin_src emacs-lisp
+(defun aborn/backward-kill-word ()
+  "Customize/Smart backward-kill-word."
+  (interactive)
+  (let* ((cp (point))
+         (backword)
+         (end)
+         (space-pos)
+         (backword-char (if (bobp)
+                            ""           ;; cursor in begin of buffer
+                          (buffer-substring cp (- cp 1)))))
+    (if (equal (length backword-char) (string-width backword-char))
+        (progn
+          (save-excursion
+            (setq backword (buffer-substring (point) (progn (forward-word -1) (point)))))
+          (setq ab/debug backword)
+          (save-excursion
+            (when (and backword          ;; when backword contains space
+                       (s-contains? " " backword))
+              (setq space-pos (ignore-errors (search-backward " ")))))
+          (save-excursion
+            (let* ((pos (ignore-errors (search-backward-regexp "\n")))
+                   (substr (when pos (buffer-substring pos cp))))
+              (when (or (and substr (s-blank? (s-trim substr)))
+                        (s-contains? "\n" backword))
+                (setq end pos))))
+          (if end
+              (kill-region cp end)
+            (if space-pos
+                (kill-region cp space-pos)
+              (backward-kill-word 1))))
+      (kill-region cp (- cp 1)))         ;; word is non-english word
+    ))
+
+(global-set-key  [C-backspace]
+		 'aborn/backward-kill-word)
+#+end_src
 * org-mode
 ** Packages
 #+begin_src emacs-lisp
@@ -200,11 +238,6 @@
 
 ** Bindings
 #+begin_src emacs-lisp
-(general-define-key
- :keymaps 'org-mode-map
- "²" 'org-cycle
- "C-²" 'org-force-cycle-archived
- "~" 'org-shifttab)
 (mode-leader org-mode-map
   "f" 'org-gfm-convert-region-to-md
   "F" 'grip-mode
@@ -270,33 +303,25 @@
 #+end_src
 *** Front-end (taken from Doom)
 #+begin_src emacs-lisp
-;; (use-package company-box
-;;   :hook (company-mode . company-box-mode)
-;;   :config
-;;   (defun +company-box-icons--elisp-fn (candidate)
-;;     (when (derived-mode-p 'emacs-lisp-mode)
-;;       (let ((sym (intern candidate)))
-;;         (cond ((fboundp sym)  'ElispFunction)
-;;               ((boundp sym)   'ElispVariable)
-;;               ((featurep sym) 'ElispFeature)
-;;               ((facep sym)    'ElispFace)))))
+(use-package company-box
+  :hook (company-mode . company-box-mode)
+  :config
+  (defun +company-box-icons--elisp-fn (candidate)
+    (when (derived-mode-p 'emacs-lisp-mode)
+      (let ((sym (intern candidate)))
+	(cond ((fboundp sym)  'ElispFunction)
+	      ((boundp sym)   'ElispVariable)
+	      ((featurep sym) 'ElispFeature)
+	      ((facep sym)    'ElispFace)))))
 
-;;   (defadvice! +company-remove-scrollbar-a (orig-fn &rest args)
-;;     "This disables the company-box scrollbar, because:
-;; https://github.com/sebastiencs/company-box/issues/44"
-;;     :around #'company-box--update-scrollbar
-;;     (cl-letf (((symbol-function #'display-buffer-in-side-window)
-;;                (symbol-function #'ignore)))
-;;       (apply orig-fn args)))
-;; (setq company-box-show-single-candidate t
-;;       company-box-backends-colors nil
-;;       company-box-max-candidates 50
-;;       company-box-icons-alist 'company-box-icons-all-the-icons
-;;       company-box-icons-functions
-;;       (cons #'+company-box-icons--elisp-fn
-;;	    (delq 'company-box-icons--elisp
-;;		  company-box-icons-functions))))
-
+  (setq company-box-show-single-candidate t
+	company-box-backends-colors nil
+	company-box-max-candidates 50
+	company-box-icons-alist 'company-box-icons-all-the-icons
+	company-box-icons-functions
+	(cons #'+company-box-icons--elisp-fn
+	      (delq 'company-box-icons--elisp
+		    company-box-icons-functions))))
 #+end_src
 ** Ivy
 #+begin_src emacs-lisp
@@ -541,6 +566,134 @@
   (require 'multiple-cursors))
 #+end_src
 * Lang
+** Lsp
+*** Packages
+**** lsp-mode
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :requires hydra helm helm-lsp
+  :hook
+  (lsp-mode . lsp-lens-mode)
+  :config (setq lsp-prefer-flymake nil))
+
+;; lsp-mode supports snippets, but in order for them to work you need to use yasnippet
+;; If you don't want to use snippets set lsp-enable-snippet to nil in your lsp-mode settings
+;;   to avoid odd behavior with snippets and indentation
+(use-package yasnippet)
+
+(use-package company-lsp
+  :config
+  (require 'company-lsp)
+  (push 'company-lsp company-backends))
+#+end_src
+**** lsp-ui
+#+begin_src emacs-lisp
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (lsp-ui-imenu-enable nil)
+  (lsp-ui-peek-enable t)
+  (setq lsp-ui-doc-mode nil
+        lsp-ui-doc-position 'bottom
+        lsp-ui-doc-alignment 'window
+        lsp-ui-doc-include-signature nil
+        lsp-ui-sideline-mode nil
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-sideline-show-symbol t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-imenu-enable t
+        lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
+                              ,(face-foreground 'font-lock-string-face)
+                              ,(face-foreground 'font-lock-constant-face)
+                              ,(face-foreground 'font-lock-variable-name-face)))
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  (define-key lsp-ui-mode-map (kbd "C-q") 'lsp-ui-doc-glance)
+  (define-key lsp-ui-mode-map (kbd "<C-mouse-1>") 'lsp-find-references))
+
+(use-package helm-lsp
+  :config
+  (define-key lsp-ui-mode-map (kbd "M-n") 'helm-lsp-workspace-symbol))
+#+end_src
+**** Debug : dap-mode
+#+begin_src emacs-lisp
+(use-package posframe
+  ;; Posframe is a pop-up tool that must be manually installed for dap-mode
+  :ensure t)
+
+(use-package dap-mode
+  :functions dap-hydra/nil
+  :diminish
+  :config
+  ;; enables mouse hover support
+  (dap-tooltip-mode 1)
+  ;; use tooltips for mouse hover
+  ;; if it is not enabled `dap-mode' will use the minibuffer.
+  (tooltip-mode 1)
+  :bind (:map lsp-mode-map
+              ("<f5>" . dap-debug)
+              ("M-<f5>" . dap-hydra))
+  :hook ((after-init . dap-mode)
+         (dap-mode . dap-ui-mode)
+         (dap-session-created . (lambda (_args) (dap-hydra)))
+         (dap-stopped . (lambda (_args) (dap-hydra)))
+         (dap-terminated . (lambda (_args) (dap-hydra/nil)))
+
+         (python-mode . (lambda () (require 'dap-python)))
+         (ruby-mode . (lambda () (require 'dap-ruby)))
+         (go-mode . (lambda () (require 'dap-go)))
+         (java-mode . (lambda () (require 'dap-java)))
+         ((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-lldb)))
+         (php-mode . (lambda () (require 'dap-php)))
+         (elixir-mode . (lambda () (require 'dap-elixir)))
+         ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
+         (powershell-mode . (lambda () (require 'dap-pwsh)))))
+#+end_src
+
+*** Configuration
+**** Enables lsp in those languages
+***** Python
+  #+begin_src emacs-lisp
+  ;; lsp python
+  (add-hook 'python-mode-hook #'lsp-deferred)
+  (require 'dap-python)
+  #+end_src
+*** Bindings
+**** TODO [bind] hydra
+  #+begin_src emacs-lisp
+  (defhydra hydra-lsp (:exit t :hint nil)
+    "
+   Buffer^^               Server^^                   Symbol
+  -------------------------------------------------------------------------------------
+   [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
+   [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
+   [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature
+   [_l_] flycheck-list
+  "
+    ("d" lsp-find-declaration)
+    ("D" lsp-ui-peek-find-definitions)
+    ("R" lsp-ui-peek-find-references)
+    ("i" lsp-ui-peek-find-implementation)
+    ("t" lsp-find-type-definition)
+    ("s" lsp-signature-help)
+    ("o" lsp-describe-thing-at-point)
+    ("r" lsp-rename)
+    ("l" lsp-ui-flycheck-list)
+
+    ("f" lsp-format-buffer)
+    ("m" lsp-ui-imenu)
+    ("x" lsp-execute-code-action)
+
+    ("M-s" lsp-describe-session)
+    ("M-r" lsp-restart-workspace)
+    ("S" lsp-shutdown-workspace))
+
+  (global-set-key (kbd "<f11>") 'hydra-lsp/body)
+  #+end_src
+
 ** Python
    #+begin_src emacs-lisp
 (use-package pyvenv)
@@ -725,15 +878,20 @@ code of the process and OUTPUT is its stdout output."
  #+end_src
 ** Theme
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'leuven t)
-;;(use-package parchment-theme
-;;  :config
-;;  (load-theme 'parchment t)
-;;  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-;;  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-;;  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-;;  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+;; (load-theme 'leuven t)
+;; (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+;; (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
+
+(use-package parchment-theme
+  :config
+  (load-theme 'parchment t)
+  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
 #+END_SRC
 
 ** all-the-icons
@@ -1046,11 +1204,11 @@ Use shift + arrow keys to switch between visible buffers
 ** bb/leader
 #+BEGIN_SRC emacs-lisp
 
-(-each '("<tab>", "<f12>")
+(-each '("²" "<f12>")
   (lambda (key)
     (general-define-key
   ;; :prefix my-leader
- :prefix "<escape>"
+  :prefix key
  "e" '(:ignore t :which-key "Edits")
  "ee" 'helm-show-kill-ring
  "eu" 'undo-tree-visualize
