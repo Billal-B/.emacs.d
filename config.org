@@ -84,13 +84,6 @@
   (setq scroll-margin 3)
 #+end_src
 
-** Major mode leader
-#+begin_src emacs-lisp
-(general-create-definer mode-leader
-  :states '(normal insert emacs)
-  :prefix "ù"
-  :non-normal-prefix "M-ù")
-#+end_src
 ** dired
    Directory first ([[https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst][src]])
 #+begin_src emacs-lisp
@@ -207,6 +200,11 @@
 
 ** Bindings
 #+begin_src emacs-lisp
+(general-define-key
+ :keymaps 'org-mode-map
+ "²" 'org-cycle
+ "C-²" 'org-force-cycle-archived
+ "~" 'org-shifttab)
 (mode-leader org-mode-map
   "f" 'org-gfm-convert-region-to-md
   "F" 'grip-mode
@@ -327,25 +325,25 @@
     (setq all-the-icons-spacer " ")
     :ensure t)
 
-  (use-package ivy-posframe
-    :ensure
-    :after ivy
-    :config
-    (setq ivy-posframe-parameters
-	  '((left-fringe . 2)
-	    (right-fringe . 2)
-	    (internal-border-width . 2)
-	    ))
-    (setq ivy-posframe-height-alist
-	  '((swiper . 15)
-	    (swiper-isearch . 15)
-	    (t . 10)))
-    (setq ivy-posframe-display-functions-alist
-	  '((complete-symbol . ivy-posframe-display-at-point)
-	    (swiper . nil)
-	    (swiper-isearch . nil)
-	    (t . ivy-posframe-display-at-frame-center)))
-    (ivy-posframe-mode 1))
+  ;; (use-package ivy-posframe
+  ;;   :ensure
+  ;;   :after ivy
+  ;;   :config
+  ;;   (setq ivy-posframe-parameters
+  ;; 	  '((left-fringe . 2)
+  ;; 	    (right-fringe . 2)
+  ;; 	    (internal-border-width . 2)
+  ;; 	    ))
+  ;;   (setq ivy-posframe-height-alist
+  ;; 	  '((swiper . 15)
+  ;; 	    (swiper-isearch . 15)
+  ;; 	    (t . 10)))
+  ;;   (setq ivy-posframe-display-functions-alist
+  ;; 	  '((complete-symbol . ivy-posframe-display-at-point)
+  ;; 	    (swiper . nil)
+  ;; 	    (swiper-isearch . nil)
+  ;; 	    (t . ivy-posframe-display-at-frame-center)))
+  ;;   (ivy-posframe-mode 1))
 
   (general-define-key
    "M-x" 'counsel-M-x
@@ -393,6 +391,7 @@
   (use-package helm)
   (use-package helm-projectile)
   (use-package helm-ag)
+  (use-package helm-org)
   (require 'helm-treemacs-icons)
   (helm-treemacs-icons-enable)
   ;; Basic config
@@ -422,6 +421,7 @@
 
   ;; bindings
   (general-define-key
+   "C-c o" 'helm-occur
    "C-x C-f" 'helm-find-files
    "M-x" 'helm-M-x
    "M-y" 'helm-show-kill-ring
@@ -514,7 +514,7 @@
 (setq projectile-enable-caching t)
 (if (eq system-type 'windows-nt)
     (setq projectile-indexing-method 'native)
-  (setq projectile-indexing-method 'alien))
+  (setq projectile-indexing-method 'hybrid))
 (general-define-key "C-c p" 'projectile-command-map)
 (general-define-key "C-c C-p" 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
@@ -534,6 +534,12 @@
    (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold))
  #+end_src
 
+** multiple-cursors
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :config
+  (require 'multiple-cursors))
+#+end_src
 * Lang
 ** Python
    #+begin_src emacs-lisp
@@ -720,14 +726,14 @@ code of the process and OUTPUT is its stdout output."
 ** Theme
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-
-(use-package parchment-theme
-  :config
-  (load-theme 'parchment t)
-  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
+(load-theme 'leuven t)
+;;(use-package parchment-theme
+;;  :config
+;;  (load-theme 'parchment t)
+;;  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+;;  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+;;  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+;;  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
 #+END_SRC
 
 ** all-the-icons
@@ -874,20 +880,72 @@ code of the process and OUTPUT is its stdout output."
  "C-x C-l" 'crux-downcase-region)
 #+end_src
 ** Evil
+*** Lisp
+#+begin_src emacs-lisp
+(defmacro evil-save-side-windows (&rest body)
+  "Toggle side windows, evaluate BODY, restore side windows."
+  (declare (indent defun) (debug (&rest form)))
+  (let ((sides (make-symbol "sidesvar")))
+    `(let ((,sides (and (functionp 'window-toggle-side-windows)
+			(window-with-parameter 'window-side))))
+       (when ,sides
+	 (window-toggle-side-windows))
+       (unwind-protect
+	   (progn ,@body)
+	 (when ,sides
+	   (window-toggle-side-windows))))))
+
+(defun evil-move-window (side)
+  "Move the `selected-window' to SIDE.
+The state of the `selected-window' is saved along with the state
+of the window tree consisting of all the other windows. Then, all
+windows are deleted, the remaining window is split according to
+SIDE, the state of the window at SIDE is replaced with the saved
+state of the `selected-window', and, finally, the state of the
+saved window tree is reconstructed on the opposite side.
+
+SIDE has the same meaning as in `split-window'.
+
+Note, this function only operates on the window tree rooted in
+the frame's main window and effectively preserves any side
+windows \(i.e. windows with a valid window-side window
+parameter\)."
+  (evil-save-side-windows
+    (unless (one-window-p)
+      (save-excursion
+	(let ((w (window-state-get (selected-window))))
+	  (delete-window)
+	  (let ((wtree (window-state-get)))
+	    (delete-other-windows)
+	    (let ((subwin (selected-window))
+		  ;; NOTE: SIDE is new in Emacs 24
+		  (newwin (split-window nil nil side)))
+	      (window-state-put wtree subwin)
+	      (window-state-put w newwin)
+	      (select-window newwin)))))
+      (balance-windows))))
+
+(defun bb/evil-window-move-very-top ()
+  (interactive)
+  (evil-move-window 'above))
+
+(defun bb/evil-window-move-far-left ()
+  (interactive)
+  (evil-move-window 'left))
+
+(defun bb/evil-window-move-far-right ()
+  (interactive)
+  (evil-move-window 'right))
+
+(defun bb/evil-window-move-very-bottom ()
+  (interactive)
+  (evil-move-window 'below))
+#+end_src
 #+BEGIN_SRC emacs-lisp
-(require 'evil)
-(global-set-key (kbd "M-h") 'evil-window-move-far-left)
-(global-set-key (kbd "M-j") 'evil-window-move-very-bottom)
-(global-set-key (kbd "M-k") 'evil-window-move-very-top)
-(global-set-key (kbd "M-l") 'evil-window-move-far-right)
-
-(global-set-key (kbd "C-z") 'evil-force-normal-state)
-(global-set-key (kbd "<escape>") 'evil-force-normal-state)
-
-(define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
-
-(define-key evil-insert-state-map (kbd "C-o") 'evil-jump-backward)
-(define-key evil-insert-state-map (kbd "C-i") 'evil-jump-forward)
+(global-set-key (kbd "M-h") 'bb/evil-window-move-far-left)
+(global-set-key (kbd "M-j") 'bb/evil-window-move-very-bottom)
+(global-set-key (kbd "M-k") 'bb/evil-window-move-very-top)
+(global-set-key (kbd "M-l") 'bb/evil-window-move-far-right)
 #+END_SRC
 ** Avy
 #+begin_src emacs-lisp
@@ -906,66 +964,6 @@ Use shift + arrow keys to switch between visible buffers
 (require 'projectile)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 #+END_SRC
-** helm
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :keymaps 'helm-map
- "<tab>" 'helm-execute-persistent-action
- "C-i" 'helm-execute-persistent-action
- "C-z"  'helm-select-action)
-#+END_SRC
-** bb/leader
-#+BEGIN_SRC emacs-lisp
-(general-define-key
-  ;; :prefix my-leader
-  :prefix "<f12>"
- "e" '(:ignore t :which-key "Edits")
- "ee" 'helm-show-kill-ring
- "eu" 'undo-tree-visualize
- "f" '(:ignore t :which-key "Files")
- "fd" 'dired-jump
- "fD" 'ranger
- "ff" 'helm-find-files
- "fg" 'thunar
- "fl" 'helm-locate
- "fn" 'deft
- "fN" 'deft-new-file
- "fo" 'bb-org-rifle
- "fO" 'helm-org-rifle-org-directory
- "fr" 'helm-recentf
- "ft" 'treemacs-add-and-display-current-project
- "o" '(:ignore t :which-key "Search (occur/ag)")
- "oa" 'helm-do-grep-ag
- "oA" 'helm-do-ag
- "om" 'helm-multi-swoop-all
- "oM" 'helm-multi-swoop
- "oo" 'helm-occur
- "oO" 'helm-swoop
- "p" 'projectile-command-map
- "t" '(:ignore t :which-key "Tools")
- "td" 'docker
- "tk" 'kubernetes-overview
- "tm" 'magit-status
- "tt" 'terminal-here
- "t+" 'calc
- "w" '(:ignore t :which-key "Window")
- "wm" 'menu-bar-mode
- "wc" 'bb/tear-off-window
- "ww" 'toggle-truncate-lines
- ;; others
- "a" 'org-capture
- "A" 'org-agenda
- "b" 'helm-mini
- "p" 'projectile-command-map
- "RET" 'helm-resume
- "!" 'helm-company
- "M-x" 'helm-M-x ; useful in cases of bugs
- "<right>" 'evil-window-move-far-right
- "<left>" 'evil-window-move-far-left
- "<up>" 'evil-window-move-very-top
- "<down>" 'evil-window-move-very-bottom
- )
-
 #+END_SRC
 ** Org-mode
 #+begin_src emacs-lisp
@@ -1045,3 +1043,65 @@ Use shift + arrow keys to switch between visible buffers
  "S-SPC" 'hydra-smartparens/body)
 
 #+end_src
+** bb/leader
+#+BEGIN_SRC emacs-lisp
+
+(-each '("<tab>", "<f12>")
+  (lambda (key)
+    (general-define-key
+  ;; :prefix my-leader
+ :prefix "<escape>"
+ "e" '(:ignore t :which-key "Edits")
+ "ee" 'helm-show-kill-ring
+ "eu" 'undo-tree-visualize
+ "f" '(:ignore t :which-key "Files")
+ "fd" 'dired-jump
+ "fD" 'ranger
+ "ff" 'helm-find-files
+ "fg" 'thunar
+ "fl" 'helm-locate
+ "fn" 'deft
+ "fN" 'deft-new-file
+ "fo" 'bb-org-rifle
+ "fO" 'helm-org-rifle-org-directory
+ "fr" 'helm-recentf
+ "ft" 'treemacs-add-and-display-current-project
+ "m" '(:ignore t :which-key "Multiple cursors")
+ "mm" 'mc/edit-lines
+ "ms" 'mc/mark-next-like-this
+ "mr" 'mc/mark-previous-like-this
+ "mo" 'mc/mark-all-like-this
+ "o" '(:ignore t :which-key "Search (occur/ag)")
+ "oa" 'helm-do-grep-ag
+ "oA" 'helm-do-ag
+ "om" 'helm-multi-swoop-all
+ "oM" 'helm-multi-swoop
+ "oo" 'helm-occur
+ "oO" 'helm-swoop
+ "p" 'projectile-command-map
+ "t" '(:ignore t :which-key "Tools")
+ "td" 'docker
+ "tk" 'kubernetes-overview
+ "tm" 'magit-status
+ "tt" 'terminal-here
+ "t+" 'calc
+ "w" '(:ignore t :which-key "Window")
+ "wm" 'menu-bar-mode
+ "wc" 'bb/tear-off-window
+ "ww" 'toggle-truncate-lines
+ ;; others
+ "a" 'org-capture
+ "A" 'org-agenda
+ "b" 'helm-mini
+ "p" 'projectile-command-map
+ "RET" 'helm-resume
+ "!" 'helm-company
+ "M-x" 'helm-M-x ; useful in cases of bugs
+ "<right>" 'bb/evil-window-move-far-right
+ "<left>" 'bb/evil-window-move-far-left
+ "<up>" 'bb/evil-window-move-very-top
+ "<down>" 'bb/evil-window-move-very-bottom
+ )))
+
+
+#+END_SRC
