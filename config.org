@@ -35,7 +35,6 @@
       user-mail-address "billal.bou@gmail.com")
 (setq org-directory "~/org-files/")
 (setq display-line-numbers-type nil)
-(setq cursor-type 'bar)
 (global-hi-lock-mode t)
 (global-hl-line-mode 1)
 (electric-pair-mode t)
@@ -591,15 +590,15 @@
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :config
-  (lsp-ui-imenu-enable nil)
+  (lsp-ui-imenu-enable t)
   (lsp-ui-peek-enable t)
-  (setq lsp-ui-doc-mode nil
+  (setq lsp-ui-doc-mode t
         lsp-ui-doc-position 'bottom
         lsp-ui-doc-alignment 'window
-        lsp-ui-doc-include-signature nil
+        lsp-ui-doc-include-signature t
         lsp-ui-sideline-mode nil
-        lsp-ui-sideline-show-hover nil
-        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-show-hover t
+        lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-sideline-show-symbol t
         lsp-ui-sideline-show-code-actions t
@@ -702,6 +701,7 @@
   (elpy-enable)
   (setq elpy-rpc-backend "jedi")
   (defalias 'workon 'pyvenv-workon)
+  (remove-hook 'elpy-modules 'elpy-module-flymake)
   (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
   (setenv "WORKON_HOME" "~/.virtualenvs")
   (setq python-shell-interpreter "ipython"
@@ -835,7 +835,7 @@ code of the process and OUTPUT is its stdout output."
 ** General
 #+begin_src emacs-lisp
 (blink-cursor-mode 0)
-(setq cursor-type 'bar)
+(setq-default cursor-type 'bar)
 (auto-composition-mode 0)
 #+end_src
 ** Dashboard
@@ -924,8 +924,8 @@ code of the process and OUTPUT is its stdout output."
 			(feebleline-project-name        :align right)))
 		(feebleline-mode 1))
 #+END_SRC
-** FIXME Font
-#+BEGIN_SRC emacs-lisp :tangle no
+** Font
+#+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
 		    :family "ibm plex mono"
 		    :foundry "ibm"
