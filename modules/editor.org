@@ -28,6 +28,12 @@
   :custom
   (flycheck-display-errors-delay .3))
 #+end_src
+** super-save : auto save buffers when they lose focus
+#+begin_src emacs-lisp
+(use-package super-save
+  :config
+  (super-save-mode +1))
+#+end_src
 ** Replace (M-%) : visual replace and better regexp support
 #+begin_src emacs-lisp
 (use-package pcre2el)

@@ -3,14 +3,24 @@
   (global-company-mode 1)
 
   (setq global-company-mode t
-	company-auto-complete nil
+	company-auto-complete t
 	company-minimum-prefix-length 2
-	company-idle-delay nil
-	company-quickhelp-delay 0))
+	company-idle-delay 0.2))
+
 
 (use-package company-quickhelp
+  :init
+  (defun toggle-company-quickhelp ()
+    (interactive)
+    (if company-quickhelp-delay
+	(setq company-quickhelp-delay nil)
+      (setq company-quickhelp-delay 0))
+    (message company-quickhelp-delay))
   :config
-  (company-quickhelp-mode))
+  (company-quickhelp-mode)
+  (setq company-quickhelp-delay nil)
+  :bind (:map company-active-map
+	      ("C-q" . toggle-company-quickhelp)))
 
 ;; (use-package company-box
 ;;   :hook (company-mode . company-box-mode)

@@ -47,16 +47,16 @@
 (auto-composition-mode 0)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(use-package doom-themes
-  :config
-  (load-theme 'doom-rouge t))
-;; (use-package parchment-theme
+;; (use-package doom-themes
 ;;   :config
-;;   (load-theme 'parchment t)
-;;   (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-;;   (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-;;   (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-;;   (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
+;;   (load-theme 'doom-rouge t))
+(use-package parchment-theme
+  :config
+  (load-theme 'parchment t)
+  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
 
 ;; really dark one
 ;; (use-package sorcery-theme

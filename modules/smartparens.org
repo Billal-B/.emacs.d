@@ -67,5 +67,4 @@
 (general-define-key
  :states '(insert emacs)
  "S-SPC" 'hydra-smartparens/body)
-
 #+end_src

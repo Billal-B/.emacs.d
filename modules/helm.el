@@ -36,9 +36,9 @@
 ;; 	'((left-fringe . 10)
 ;; 	  (right-fringe . 10)))
 ;;   (setq helm-posframe-poshandler 'posframe-poshandler-frame-center))
-(setq helm-display-function 'helm-display-buffer-in-own-frame
-      helm-display-buffer-reuse-frame nil
-      helm-use-undecorated-frame-option t)
+;;(setq helm-display-function 'helm-display-buffer-in-own-frame
+;;      helm-display-buffer-reuse-frame nil
+;;      helm-use-undecorated-frame-option t)
 
 (general-define-key
  "C-x C-f" 'helm-find-files
@@ -46,6 +46,7 @@
  "M-y" 'helm-show-kill-ring
  "C-x b" 'helm-buffers-list
  "C-x C-b" 'helm-buffers-list
+ "C-c r" 'helm-resume
  "C-c f" 'helm-recentf)
 
 (general-define-key

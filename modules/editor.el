@@ -23,6 +23,10 @@
   :custom
   (flycheck-display-errors-delay .3))
 
+(use-package super-save
+  :config
+  (super-save-mode +1))
+
 (use-package pcre2el)
 (use-package visual-regexp-steroids
   :bind ("M-%" . vr/query-replace))

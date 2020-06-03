@@ -50,23 +50,24 @@
 ;; 	'((left-fringe . 10)
 ;; 	  (right-fringe . 10)))
 ;;   (setq helm-posframe-poshandler 'posframe-poshandler-frame-center))
-(setq helm-display-function 'helm-display-buffer-in-own-frame
-      helm-display-buffer-reuse-frame nil
-      helm-use-undecorated-frame-option t)
+;;(setq helm-display-function 'helm-display-buffer-in-own-frame
+;;      helm-display-buffer-reuse-frame nil
+;;      helm-use-undecorated-frame-option t)
 #+end_src
 * Bindings
 #+begin_src emacs-lisp
-  (general-define-key
-   "C-x C-f" 'helm-find-files
-   "M-x" 'helm-M-x
-   "M-y" 'helm-show-kill-ring
-   "C-x b" 'helm-buffers-list
-   "C-x C-b" 'helm-buffers-list
-   "C-c f" 'helm-recentf)
+(general-define-key
+ "C-x C-f" 'helm-find-files
+ "M-x" 'helm-M-x
+ "M-y" 'helm-show-kill-ring
+ "C-x b" 'helm-buffers-list
+ "C-x C-b" 'helm-buffers-list
+ "C-c r" 'helm-resume
+ "C-c f" 'helm-recentf)
 
-  (general-define-key
-   :keymaps 'helm-map
-   "<tab>" 'helm-execute-persistent-action
-   "C-i" 'helm-execute-persistent-action
-   "C-z"  'helm-select-action)
+(general-define-key
+ :keymaps 'helm-map
+ "<tab>" 'helm-execute-persistent-action
+ "C-i" 'helm-execute-persistent-action
+ "C-z"  'helm-select-action)
 #+end_src

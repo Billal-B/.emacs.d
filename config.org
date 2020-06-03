@@ -1,0 +1,1047 @@
+#+TITLE: Configuration
+#+LANGUAGE: en
+#+STARTUP: inlineimages
+#+PROPERTY: header-args :tangle yes :cache yes :results silent :padline no
+#+TODO: TODO(t) | DONE(d) | FIXME (f)
+
+* Core
+** Exec-path
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell)
+
+(require 'dash)
+#+end_src
+*** Env variable to load
+#+begin_src emacs-lisp
+(setq bb-env-var '("NEXUS_USER" "NEXUS_PW"))
+#+end_src
+*** Adds environment variable in Emacs
+#+begin_src emacs-lisp
+(with-eval-after-load 'exec-path-from-shell
+  (dolist (var (-union '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE") bb-env-var))
+    (add-to-list 'exec-path-from-shell-variables var)))
+
+(when (or (memq window-system '(mac ns x))
+	  (unless (memq system-type '(ms-dos windows-nt))
+	    (daemonp)))
+  (exec-path-from-shell-initialize))
+#+end_src
+
+** Editor
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(require 'bb-func)
+(setq user-full-name "Billal B"
+      user-mail-address "billal.bou@gmail.com")
+(setq org-directory "~/org-files/")
+(setq display-line-numbers-type nil)
+(setq cursor-type 'bar)
+(global-hi-lock-mode t)
+(global-hl-line-mode 1)
+(electric-pair-mode t)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(setq mouse-yank-at-point t)
+(global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
+(show-paren-mode t)
+(winner-mode 1)
+(global-auto-revert-mode 1)
+
+(use-package general)
+(use-package hydra)
+(use-package hercules)
+#+END_SRC
+** Major mode leader
+#+begin_src emacs-lisp
+(general-auto-unbind-keys)
+(general-create-definer mode-leader
+  :prefix "M-ù")
+#+end_src
+** Backup
+[[https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files][Stackoverflow thread]]
+#+begin_src emacs-lisp
+(setq recentf-max-saved-items 300)
+
+(setq savefiles-dir (expand-file-name "savefiles" user-emacs-directory))
+(setq backup-directory-alist `(("." . ,savefiles-dir)))
+(setq make-backup-files t
+      delete-old-versions t
+      delete-by-moving-to-trash t
+      backup-by-copying t
+      kept-new-versions 9
+      kept-old-versions 6
+      version-control t
+      auto-save-default t
+      auto-save-timeout 20
+      auto-save-interval 100)
+#+end_src
+** Scrolling
+#+begin_src emacs-lisp
+  (setq mouse-wheel-scroll-amount '(3 ((shift) . 3))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+  (setq scroll-margin 3)
+#+end_src
+
+** Major mode leader
+#+begin_src emacs-lisp
+(general-create-definer mode-leader
+  :states '(normal insert emacs)
+  :prefix "ù"
+  :non-normal-prefix "M-ù")
+#+end_src
+** dired
+   Directory first ([[https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst][src]])
+#+begin_src emacs-lisp
+(setq dired-listing-switches "-lXGh --group-directories-first")
+#+end_src
+** ediff
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+** eldoc
+#+begin_src emacs-lisp
+(global-eldoc-mode -1)
+(setq eldoc-echo-area-use-multiline-p nil)
+#+end_src
+* org-mode
+** Packages
+#+begin_src emacs-lisp
+(use-package org-bullets)
+(use-package grip-mode)
+(use-package ox-gfm
+  :config
+  (eval-after-load "org"
+  '(require 'ox-gfm nil t)))
+#+end_src
+
+** Configuration
+*** General
+#+begin_src emacs-lisp
+(setq org-directory (expand-file-name "org-files" user-emacs-directory))
+(setq org-log-done 'time)
+
+(add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . org-mode))
+
+(setq org-edit-src-content-indentation 0)
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+#+RESULTS:
+
+*** Org bullets
+#+begin_src emacs-lisp
+(require 'org-bullets)
+(setq org-bullets-bullet-list
+      '("◉" "○"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+*** TODO Agenda
+#+begin_src emacs-lisp
+(setq org-agenda-files (directory-files-recursively "~/org-files/" "\.org$"))
+(setq org-capture-dir (expand-file-name "org-files" user-emacs-directory))
+
+;; TODO don't use hard written folder for captures
+(setq org-capture-templates
+      '(("t" "Todo (ADYL)" entry (file+headline "~/.emacs.d/org-files/agenda-adyl.org" "TODOS")
+	 "* TODO %?\n  %U\n")
+	("a" "Agenda (ADYL)" entry (file+datetree "~/.emacs.d/org-files/agenda-adyl.org" "Agenda")
+	 "* %?\nEntered on %U\n")
+	("n" "Note" entry (file+datetree "~/.emacs.d/org-files/notes.org" "Notes")
+	 "* %?\nEntered on %U\n")))
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator nil
+      org-agenda-compact-blocks t
+      org-agenda-start-day nil ;; i.e. today
+      org-agenda-span 1
+      org-agenda-start-on-weekday nil)
+(setq org-agenda-custom-commands
+      '(("c" "Super view"
+	 ((agenda "" ((org-agenda-overriding-header "")
+		      (org-super-agenda-groups
+		       '((:name "Today"
+				:time-grid t
+				:date today
+				:order 1)))))
+	  (alltodo "" ((org-agenda-overriding-header "")
+		       (org-super-agenda-groups
+			'((:log t)
+			  (:name "To refile"
+				 :file-path "refile\\.org")
+			  (:name "Next to do"
+				 :todo "NEXT"
+				 :order 1)
+			  (:name "Important"
+				 :priority "A"
+				 :order 6)
+			  (:name "Today's tasks"
+				 :file-path "journal/")
+			  (:name "Due Today"
+				 :deadline today
+				 :order 2)
+			  (:name "Scheduled Soon"
+				 :scheduled future
+				 :order 8)
+			  (:name "Overdue"
+				 :deadline past
+				 :order 7)
+			  (:name "Meetings"
+				 :and (:todo "MEET" :scheduled future)
+				 :order 10)
+			  (:discard (:not (:todo "TODO")))))))))))
+#+end_src
+
+*** Lisp
+#+begin_src emacs-lisp
+(defun bb-org-evaluate-and-next ()
+  (interactive)
+  (call-interactively 'org-ctrl-c-ctrl-c)
+  (org-babel-next-src-block))
+#+end_src
+
+** Bindings
+#+begin_src emacs-lisp
+(mode-leader org-mode-map
+  "f" 'org-gfm-convert-region-to-md
+  "F" 'grip-mode
+  "g" 'counsel-org-goto
+  "G" 'counsel-org-goto-all
+  "h" 'org-insert-heading
+  "i" 'org-insert-item
+  "!" 'bb-org-evaluate-and-next
+  )
+#+end_src
+
+#+RESULTS:
+
+** General
+#+BEGIN_SRC emacs-lisp
+(setq org-log-done 'time)
+
+(add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . org-mode))
+
+(setq org-edit-src-content-indentation 0)
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
+** Lisp
+#+begin_src emacs-lisp
+(defun bb-org-evaluate-and-next ()
+  (interactive)
+  (call-interactively 'org-ctrl-c-ctrl-c)
+  (org-babel-next-src-block))
+#+end_src
+*** TODO improves bb-org rifle
+#+RESULTS:
+: bb-org-evaluate-and-next
+
+* Completion
+** Company
+#+begin_src emacs-lisp
+(use-package company
+  :config
+  (global-company-mode 1)
+
+  (setq global-company-mode t
+	company-auto-complete t
+	company-minimum-prefix-length 2
+	company-idle-delay 0.2))
+
+
+(use-package company-quickhelp
+  :init
+  (defun toggle-company-quickhelp ()
+    (interactive)
+    (if company-quickhelp-delay
+	(setq company-quickhelp-delay nil)
+      (setq company-quickhelp-delay 0))
+    (message company-quickhelp-delay))
+  :config
+  (company-quickhelp-mode)
+  (setq company-quickhelp-delay nil)
+  :bind (:map company-active-map
+	      ("C-q" . toggle-company-quickhelp)))
+#+end_src
+*** Front-end (taken from Doom)
+#+begin_src emacs-lisp
+;; (use-package company-box
+;;   :hook (company-mode . company-box-mode)
+;;   :config
+;;   (defun +company-box-icons--elisp-fn (candidate)
+;;     (when (derived-mode-p 'emacs-lisp-mode)
+;;       (let ((sym (intern candidate)))
+;;         (cond ((fboundp sym)  'ElispFunction)
+;;               ((boundp sym)   'ElispVariable)
+;;               ((featurep sym) 'ElispFeature)
+;;               ((facep sym)    'ElispFace)))))
+
+;;   (defadvice! +company-remove-scrollbar-a (orig-fn &rest args)
+;;     "This disables the company-box scrollbar, because:
+;; https://github.com/sebastiencs/company-box/issues/44"
+;;     :around #'company-box--update-scrollbar
+;;     (cl-letf (((symbol-function #'display-buffer-in-side-window)
+;;                (symbol-function #'ignore)))
+;;       (apply orig-fn args)))
+;; (setq company-box-show-single-candidate t
+;;       company-box-backends-colors nil
+;;       company-box-max-candidates 50
+;;       company-box-icons-alist 'company-box-icons-all-the-icons
+;;       company-box-icons-functions
+;;       (cons #'+company-box-icons--elisp-fn
+;;	    (delq 'company-box-icons--elisp
+;;		  company-box-icons-functions))))
+
+#+end_src
+** Ivy
+#+begin_src emacs-lisp
+(when (featurep! 'ivy)
+  (use-package ivy)
+  (use-package ivy-hydra)
+  (use-package swiper)
+  (use-package counsel)
+  (use-package ivy-rich)
+  (use-package counsel-projectile)
+
+  (ivy-mode 1)
+  (ivy-rich-mode 1)
+  (counsel-projectile-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+
+  (setq projectile-completion-system 'ivy)
+  (setq ivy-initial-inputs-alist nil)
+
+  (use-package all-the-icons-ivy
+    :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
+    :config
+    (setq all-the-icons-ivy-file-commands
+	  '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
+    (setq all-the-icons-spacer " ")
+    :ensure t)
+
+  (use-package ivy-posframe
+    :ensure
+    :after ivy
+    :config
+    (setq ivy-posframe-parameters
+	  '((left-fringe . 2)
+	    (right-fringe . 2)
+	    (internal-border-width . 2)
+	    ))
+    (setq ivy-posframe-height-alist
+	  '((swiper . 15)
+	    (swiper-isearch . 15)
+	    (t . 10)))
+    (setq ivy-posframe-display-functions-alist
+	  '((complete-symbol . ivy-posframe-display-at-point)
+	    (swiper . nil)
+	    (swiper-isearch . nil)
+	    (t . ivy-posframe-display-at-frame-center)))
+    (ivy-posframe-mode 1))
+
+  (general-define-key
+   "M-x" 'counsel-M-x
+   "C-x C-f" 'counsel-find-file
+   "C-c o" 'swiper
+   "C-c r" 'ivy-resume
+   "C-c f" 'counsel-recentf
+   "C-c a" 'counsel-ag)
+
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+  ;; ivy/counsel
+  (general-define-key
+   :keymaps 'ivy-minibuffer-map
+   "TAB" 'ivy-call
+   "C-z" 'ivy-dispatching-done
+   "RET" 'ivy-alt-done)
+  ;; general
+  (setq projectile-completion-system 'ivy)
+  (setq ivy-initial-inputs-alist nil)
+  ;; bindings
+  (general-define-key
+   "M-x" 'counsel-M-x
+   "C-x C-f" 'counsel-find-file
+   "C-c o" 'swiper
+   "C-c r" 'ivy-resume
+   "C-c f" 'counsel-recentf
+   "C-c a" 'counsel-ag)
+
+
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+  ;; ivy/counsel
+  (general-define-key
+   :keymaps 'ivy-minibuffer-map
+   "TAB" 'ivy-call
+   "C-z" 'ivy-dispatching-done
+   "RET" 'ivy-alt-done))
+#+end_src
+** helm
+#+begin_src emacs-lisp
+;; all-the-icons support
+;; Must be loaded before helm (and maybe treemacs)
+(when (featurep! 'helm)
+  (use-package helm)
+  (use-package helm-projectile)
+  (use-package helm-ag)
+  (require 'helm-treemacs-icons)
+  (helm-treemacs-icons-enable)
+  ;; Basic config
+  (require 'helm-config)
+  (require 'helm-projectile)
+  (helm-mode 1)
+
+  (customize-set-variable 'helm-ff-lynx-style-map t) ; allow going up/down dir with helm using arrow keys
+
+  (setq helm-display-header-line t
+	helm-autoresize-mode t
+	helm-autoresize-min-height 20
+	helm-autoresize-max-height 40
+	helm-move-to-line-cycle-in-source nil
+	helm-allow-mouse t
+	helm-prevent-escaping-from-minibuffer nil)
+  ;; Eshell enhancements
+  (add-hook 'eshell-mode-hook
+	    (lambda ()
+	      (eshell-cmpl-initialize)
+	      (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+	      (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)))
+  ;; helm-projectile
+  (setq projectile-completion-system 'helm)
+  (require 'helm-projectile)
+  (helm-projectile-on)
+
+  ;; bindings
+  (general-define-key
+   "C-x C-f" 'helm-find-files
+   "M-x" 'helm-M-x
+   "M-y" 'helm-show-kill-ring
+   "C-x b" 'helm-buffers-list
+   "C-x C-b" 'helm-buffers-list
+   "C-c r" 'helm-resume
+   "C-c f" 'helm-recentf)
+  (general-define-key
+   :keymaps 'helm-map
+   "<tab>" 'helm-execute-persistent-action
+   "C-i" 'helm-execute-persistent-action
+   "C-z"  'helm-select-action)
+  )
+#+end_src
+* Editor
+** TODO treemacs
+** symbol-overlay : highlight symbol at point
+#+begin_src emacs-lisp
+(use-package symbol-overlay
+  :diminish
+  :defines iedit-mode
+  :commands (symbol-overlay-get-symbol
+	     symbol-overlay-assoc
+	     symbol-overlay-get-list
+	     symbol-overlay-jump-call)
+  :bind (("M-i" . symbol-overlay-put)
+	 ("M-n" . symbol-overlay-jump-next)
+	 ("M-p" . symbol-overlay-jump-prev)
+	 ("M-N" . symbol-overlay-switch-forward)
+	 ("M-P" . symbol-overlay-switch-backward)
+	 ("M-C" . symbol-overlay-remove-all)
+	 ([M-f3] . symbol-overlay-remove-all))
+  :hook ((prog-mode . symbol-overlay-mode)
+	 (iedit-mode . (lambda () (symbol-overlay-mode -1)))
+	 (iedit-mode-end . symbol-overlay-mode)))
+#+end_src
+** flycheck : Enable nice rendering of diagnostics like compile errors
+#+begin_src emacs-lisp
+(use-package flycheck
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+  :custom
+  (flycheck-display-errors-delay .3))
+#+end_src
+** super-save : auto save buffers when they lose focus
+#+begin_src emacs-lisp
+(use-package super-save
+  :config
+  (super-save-mode +1))
+#+end_src
+** Replace (M-%) : visual replace and better regexp support
+#+begin_src emacs-lisp
+(use-package pcre2el)
+(use-package visual-regexp-steroids
+  :bind ("M-%" . vr/query-replace))
+(require 'visual-regexp-steroids)
+#+end_src
+** YAML
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :config
+  (require 'yaml-mode)
+    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+#+end_src
+** Dockerfile
+#+begin_src emacs-lisp
+(use-package dockerfile-mode
+  :config
+  (require 'dockerfile-mode)
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+#+end_src
+** Multi-cursor
+#+begin_src emacs-lisp
+
+#+end_src
+** Treemacs
+#+begin_src emacs-lisp
+(setq treemacs-is-never-other-window nil)
+(general-define-key :keymaps 'treemacs-mode-map
+ "O" 'treemacs-display-current-project-exclusively)
+#+end_src
+** Avy
+#+begin_src emacs-lisp
+(setq avy-all-windows t)
+;;(setq avy-keys (loop for c from ?a to ?z collect c))
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+(setq projectile-enable-caching t)
+(if (eq system-type 'windows-nt)
+    (setq projectile-indexing-method 'native)
+  (setq projectile-indexing-method 'alien))
+(general-define-key "C-c p" 'projectile-command-map)
+(general-define-key "C-c C-p" 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
+#+end_src
+** which-key
+ #+begin_src emacs-lisp
+ (use-package which-key
+   :config
+   (which-key-mode +1)
+   (setq which-key-sort-order #'which-key-prefix-then-key-order
+	 which-key-sort-uppercase-first nil
+	 which-key-add-column-padding 1
+	 which-key-max-display-columns nil
+	 which-key-min-display-lines 6
+	 which-key-side-window-slot -10)
+
+   (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold))
+ #+end_src
+
+* Lang
+** Python
+   #+begin_src emacs-lisp
+(use-package pyvenv)
+(use-package elpy
+  :config
+  (elpy-enable)
+  (setq elpy-rpc-backend "jedi")
+  (defalias 'workon 'pyvenv-workon)
+  (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+  (setenv "WORKON_HOME" "~/.virtualenvs")
+  (setq python-shell-interpreter "ipython"
+	python-shell-interpreter-args "-i --simple-prompt")
+  (add-to-list 'python-shell-completion-native-disabled-interpreters
+	       "jupyter")
+  (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1))))
+#+end_src
+
+* Term
+** Eshell
+*** General
+#+begin_src emacs-lisp
+(setq eshell-banner-message
+      '(format "%s %s\n"
+	       (propertize (format " %s " (string-trim (buffer-name)))
+			   'face 'mode-line-highlight)
+	       (propertize (current-time-string)
+			   'face 'font-lock-keyword-face))
+      eshell-scroll-to-bottom-on-input 'all
+      eshell-scroll-to-bottom-on-output 'all
+      eshell-buffer-shorthand t
+      eshell-kill-processes-on-exit t
+      eshell-hist-ignoredups t
+      ;; don't record command in history if prefixed with whitespace
+      ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
+      eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
+      ;; em-prompt
+      eshell-prompt-regexp "^.* λ "
+      eshell-prompt-function #'+eshell-default-prompt-fn
+      ;; em-glob
+      eshell-glob-case-insensitive t
+      eshell-error-if-no-glob t)
+
+(add-hook 'eshell-mode-hook
+  (defun +eshell-remove-fringes-h ()
+    (set-window-fringes nil 0 0)
+    (set-window-margins nil 1 nil)))
+
+(add-hook 'eshell-mode-hook
+  (defun +eshell-enable-text-wrapping-h ()
+    (visual-line-mode +1)
+    (set-display-table-slot standard-display-table 0 ?\ )))
+
+(add-hook 'eshell-mode-hook #'hide-mode-line-mode)
+#+end_src
+*** Packages
+#+begin_src emacs-lisp
+(use-package virtualenvwrapper)
+
+(use-package eshell-toggle)
+(use-package hide-mode-line)
+
+(use-package eshell-prompt-extras
+  :config
+  (with-eval-after-load "esh-opt"
+    (autoload 'epe-theme-lambda "eshell-prompt-extras")
+    (setq eshell-highlight-prompt nil
+	  eshell-prompt-function 'epe-theme-lambda))
+  (with-eval-after-load "esh-opt"
+    (require 'virtualenvwrapper)
+    (venv-initialize-eshell)
+    (autoload 'epe-theme-lambda "eshell-prompt-extras")
+    (setq eshell-highlight-prompt nil
+	  eshell-prompt-function 'epe-theme-lambda)))
+
+(use-package eshell-z
+  :config
+  (add-hook 'eshell-mode-hook
+	    (defun my-eshell-mode-hook ()
+	      (require 'eshell-z)))
+  (unless (file-exists-p eshell-z-freq-dir-hash-table-file-name)
+    (setq eshell-z-freq-dir-hash-table-file-name
+	  (expand-file-name "z" eshell-directory-name))))
+#+end_src
+*** Lisp
+src:doom-emacs
+#+begin_src emacs-lisp
+(defun doom-call-process (command &rest args)
+  "Execute COMMAND with ARGS synchronously.
+
+Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
+code of the process and OUTPUT is its stdout output."
+  (with-temp-buffer
+    (cons (or (apply #'call-process command nil t nil args)
+	      -1)
+	  (string-trim (buffer-string)))))
+
+
+(defface +eshell-prompt-pwd '((t (:inherit font-lock-constant-face)))
+  "TODO"
+  :group 'eshell)
+
+(defface +eshell-prompt-git-branch '((t (:inherit font-lock-builtin-face)))
+  "TODO"
+  :group 'eshell)
+
+(defun +eshell--current-git-branch ()
+  ;; TODO Refactor me
+  (cl-destructuring-bind (status . output)
+      (doom-call-process "git" "symbolic-ref" "-q" "--short" "HEAD")
+    (if (equal status 0)
+	(format " [%s]" output)
+      (cl-destructuring-bind (status . output)
+	  (doom-call-process "git" "describe" "--all" "--always" "HEAD")
+	(if (equal status 0)
+	    (format " [%s]" output)
+	  "")))))
+
+(defun +eshell-default-prompt-fn ()
+  "Generate the prompt string for eshell. Use for `eshell-prompt-function'."
+  (require 'shrink-path)
+  (concat "\n -> "
+	  (let ((pwd (eshell/pwd)))
+	    (propertize pwd
+			'face '+eshell-prompt-pwd))
+	  (propertize (+eshell--current-git-branch)
+		      'face '+eshell-prompt-git-branch)
+	  "\n"
+	  (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
+	  " "))
+
+(defun bb-eshell-projectile-here ()
+  (interactive)
+  (let ((project (projectile-project-root)))
+    (if project
+	(projectile-with-default-dir project (eshell-toggle))
+      (eshell-toggle))))
+#+end_src
+* Appearance
+** General
+#+begin_src emacs-lisp
+(blink-cursor-mode 0)
+(setq cursor-type 'bar)
+(auto-composition-mode 0)
+#+end_src
+** Dashboard
+ #+begin_src emacs-lisp
+(setq recentf-exclude (org-agenda-files))
+(use-package dashboard
+   :ensure t
+   :config
+   (dashboard-setup-startup-hook)
+
+   (setq dashboard-center-content t)
+   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+   (setq show-week-agenda-p t)
+   (setq dashboard-items '((recents  . 10)
+		    (projects . 10)
+		    (agenda . 5)))
+   (setq dashboard-set-heading-icons t)
+   (setq dashboard-set-file-icons t)
+   (setq dashboard-set-navigator t)
+   (setq dashboard-set-footer nil)
+
+   ;; fixes a bug where dashboard lines takes two lines
+   (set-fontset-font "fontset-default"
+	    (cons page-break-lines-char page-break-lines-char)
+	    (face-attribute 'default :family)))
+#+end_src
+** centaur-tabs
+ #+begin_src emacs-lisp
+(use-package centaur-tabs
+   :demand
+   :config
+   (centaur-tabs-mode t)
+   (setq centaur-tabs-set-icons t)
+   (setq centaur-tabs-cycle-scope 'tabs)
+   (centaur-tabs-group-by-projectile-project)
+   (setq centaur-tabs-adjust-buffer-order t)
+   :bind
+   ("C-²" . centaur-tabs-forward)
+   ("C-~" . centaur-tabs-backward))
+ #+end_src
+** Theme
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+
+(use-package parchment-theme
+  :config
+  (load-theme 'parchment t)
+  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
+#+END_SRC
+
+** all-the-icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons)
+(use-package all-the-icons-dired
+  :config
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+#+END_SRC
+** rainbow-delimiters
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :config
+  (require 'rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  :ensure t)
+#+end_src
+** Modeline
+#+BEGIN_SRC emacs-lisp
+
+(use-package    feebleline
+  :ensure       t
+  :config       (setq feebleline-msg-functions
+		      '((feebleline-line-number         :post "" :fmt "%5s")
+			(feebleline-column-number       :pre ":" :fmt "%-2s")
+			(feebleline-file-directory      :face feebleline-dir-face :post "")
+			(feebleline-file-or-buffer-name :face font-lock-keyword-face :post "")
+			(feebleline-file-modified-star  :face font-lock-warning-face :post "")
+			(feebleline-git-branch          :face feebleline-git-face :pre " : ")
+			(feebleline-project-name        :align right)))
+		(feebleline-mode 1))
+#+END_SRC
+** FIXME Font
+#+BEGIN_SRC emacs-lisp :tangle no
+(set-face-attribute 'default nil
+		    :family "ibm plex mono"
+		    :foundry "ibm"
+		    :slant 'normal
+		    :weight 'normal :height 95
+		    :width 'normal)
+#+END_SRC
+** Smartparens
+*** Packages
+  #+begin_src emacs-lisp
+  (use-package smartparens)
+  #+end_src
+*** Configuration
+**** General
+  #+begin_src emacs-lisp
+  (require 'smartparens-config)
+  (smartparens-global-mode nil)
+  #+end_src
+
+*** Bindings
+**** Hydra
+  #+begin_src emacs-lisp
+  (defhydra hydra-smartparens (:hint nil)
+    "
+   Moving^^^^                       Slurp & Barf^^   Wrapping^^            Sexp juggling^^^^               Destructive
+  ------------------------------------------------------------------------------------------------------------------------
+   [_a_] beginning  [_n_] down      [_h_] bw slurp   [_R_]   rewrap        [_S_] split   [_t_] transpose   [_c_] change inner  [_w_] copy
+   [_e_] end        [_N_] bw down   [_H_] bw barf    [_u_]   unwrap        [_s_] splice  [_A_] absorb      [_C_] change outer
+   [_f_] forward    [_p_] up        [_l_] slurp      [_U_]   bw unwrap     [_r_] raise   [_E_] emit        [_k_] kill          [_g_] quit
+   [_b_] backward   [_P_] bw up     [_L_] barf       [_(__{__[_] wrap (){}[]   [_j_] join    [_o_] convolute   [_K_] bw kill       [_q_] quit"
+    ;; Moving
+    ("a" sp-beginning-of-sexp)
+    ("e" sp-end-of-sexp)
+    ("f" sp-forward-sexp)
+    ("b" sp-backward-sexp)
+    ("n" sp-down-sexp)
+    ("N" sp-backward-down-sexp)
+    ("p" sp-up-sexp)
+    ("P" sp-backward-up-sexp)
+
+    ;; Slurping & barfing
+    ("h" sp-backward-slurp-sexp)
+    ("H" sp-backward-barf-sexp)
+    ("l" sp-forward-slurp-sexp)
+    ("L" sp-forward-barf-sexp)
+
+    ;; Wrapping
+    ("R" sp-rewrap-sexp)
+    ("u" sp-unwrap-sexp)
+    ("U" sp-backward-unwrap-sexp)
+    ("(" sp-wrap-round)
+    ("{" sp-wrap-curly)
+    ("[" sp-wrap-square)
+
+    ;; Sexp juggling
+    ("S" sp-split-sexp)
+    ("s" sp-splice-sexp)
+    ("r" sp-raise-sexp)
+    ("j" sp-join-sexp)
+    ("t" sp-transpose-sexp)
+    ("A" sp-absorb-sexp)
+    ("E" sp-emit-sexp)
+    ("o" sp-convolute-sexp)
+
+    ;; Destructive editing
+    ("c" sp-change-inner :exit t)
+    ("C" sp-change-enclosing :exit t)
+    ("k" sp-kill-sexp)
+    ("K" sp-backward-kill-sexp)
+    ("w" sp-copy-sexp)
+
+    ("q" nil)
+    ("g" nil))
+
+  (general-define-key
+   :states '(insert emacs)
+   "S-SPC" 'hydra-smartparens/body)
+  #+end_src
+
+* Bindings
+** General
+#+BEGIN_SRC emacs-lisp
+(general-auto-unbind-keys)
+(require 'bb-func)
+
+(global-set-key [mouse-3] 'mouse-popup-menubar-stuff)
+(global-set-key (kbd "C-<mouse-5>") 'text-scale-decrease)
+(global-set-key (kbd "C-<mouse-4>") 'text-scale-increase)
+(global-set-key [C-down-mouse-3] 'yank)
+(global-set-key (kbd "C-²") 'other-frame)
+(global-set-key (kbd "C-h") 'windmove-left)
+(global-set-key (kbd "C-j") 'windmove-down)
+(global-set-key (kbd "C-l") 'windmove-right)
+(global-set-key (kbd "C-:") 'company-complete)
+(global-set-key (kbd "M-*") 'avy-goto-char-timer)
+(global-set-key (kbd "M-,") 'kill-buffer-and-window)
+(global-set-key (kbd "C-!") 'bb-eshell-projectile-here)
+(global-set-key (kbd "C-M-<left>") 'winner-undo)
+(global-set-key (kbd "C-M-<right>") 'winner-redo)
+#+END_SRC
+** Crux
+#+begin_src emacs-lisp
+(general-define-key
+ "s-k" 'crux-kill-whole-line
+ "C-c n" 'crux-cleanup-buffer-or-region
+ "M-o" 'crux-smart-open-line
+ "M-O" 'crux-smart-open-line-above
+ "C-c d" 'crux-duplicate-current-line-or-region
+ "C-x C-u" 'crux-upcase-region
+ "C-x C-l" 'crux-downcase-region)
+#+end_src
+** Evil
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(global-set-key (kbd "M-h") 'evil-window-move-far-left)
+(global-set-key (kbd "M-j") 'evil-window-move-very-bottom)
+(global-set-key (kbd "M-k") 'evil-window-move-very-top)
+(global-set-key (kbd "M-l") 'evil-window-move-far-right)
+
+(global-set-key (kbd "C-z") 'evil-force-normal-state)
+(global-set-key (kbd "<escape>") 'evil-force-normal-state)
+
+(define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
+
+(define-key evil-insert-state-map (kbd "C-o") 'evil-jump-backward)
+(define-key evil-insert-state-map (kbd "C-i") 'evil-jump-forward)
+#+END_SRC
+** Avy
+#+begin_src emacs-lisp
+(general-define-key "M-z" 'avy-goto-char-timer)
+#+end_src
+
+#+END_SRC
+** windmove
+Use shift + arrow keys to switch between visible buffers
+#+BEGIN_SRC emacs-lisp
+(require 'windmove)
+(windmove-default-keybindings)
+#+END_SRC
+** projectile
+#+BEGIN_SRC emacs-lisp
+(require 'projectile)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+END_SRC
+** helm
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :keymaps 'helm-map
+ "<tab>" 'helm-execute-persistent-action
+ "C-i" 'helm-execute-persistent-action
+ "C-z"  'helm-select-action)
+#+END_SRC
+** bb/leader
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+  ;; :prefix my-leader
+  :prefix "<f12>"
+ "e" '(:ignore t :which-key "Edits")
+ "ee" 'helm-show-kill-ring
+ "eu" 'undo-tree-visualize
+ "f" '(:ignore t :which-key "Files")
+ "fd" 'dired-jump
+ "fD" 'ranger
+ "ff" 'helm-find-files
+ "fg" 'thunar
+ "fl" 'helm-locate
+ "fn" 'deft
+ "fN" 'deft-new-file
+ "fo" 'bb-org-rifle
+ "fO" 'helm-org-rifle-org-directory
+ "fr" 'helm-recentf
+ "ft" 'treemacs-add-and-display-current-project
+ "o" '(:ignore t :which-key "Search (occur/ag)")
+ "oa" 'helm-do-grep-ag
+ "oA" 'helm-do-ag
+ "om" 'helm-multi-swoop-all
+ "oM" 'helm-multi-swoop
+ "oo" 'helm-occur
+ "oO" 'helm-swoop
+ "p" 'projectile-command-map
+ "t" '(:ignore t :which-key "Tools")
+ "td" 'docker
+ "tk" 'kubernetes-overview
+ "tm" 'magit-status
+ "tt" 'terminal-here
+ "t+" 'calc
+ "w" '(:ignore t :which-key "Window")
+ "wm" 'menu-bar-mode
+ "wc" 'bb/tear-off-window
+ "ww" 'toggle-truncate-lines
+ ;; others
+ "a" 'org-capture
+ "A" 'org-agenda
+ "b" 'helm-mini
+ "p" 'projectile-command-map
+ "RET" 'helm-resume
+ "!" 'helm-company
+ "M-x" 'helm-M-x ; useful in cases of bugs
+ "<right>" 'evil-window-move-far-right
+ "<left>" 'evil-window-move-far-left
+ "<up>" 'evil-window-move-very-top
+ "<down>" 'evil-window-move-very-bottom
+ )
+
+#+END_SRC
+** Org-mode
+#+begin_src emacs-lisp
+(mode-leader org-mode-map
+  "f" 'org-gfm-convert-region-to-md
+  "F" 'grip-mode
+  "g" 'helm-org-in-buffer-headings
+  "G" 'helm-org-rifle
+  "h" 'org-insert-heading
+  "i" 'org-insert-item
+  "!" 'bb-org-evaluate-and-next)
+
+(when (featurep! 'helm)
+  (mode-leader org-mode-map
+    "g" 'helm-org-in-buffer-headings
+    "G" 'helm-org-rifle))
+
+(when (featurep! 'ivy)
+  (mode-leader org-mode-map
+    "g" 'counsel-org-goto))
+#+end_src
+** Smartparens
+#+begin_src emacs-lisp
+(defhydra hydra-smartparens (:hint nil)
+  "
+ Moving^^^^                       Slurp & Barf^^   Wrapping^^            Sexp juggling^^^^               Destructive
+------------------------------------------------------------------------------------------------------------------------
+ [_a_] beginning  [_n_] down      [_h_] bw slurp   [_R_]   rewrap        [_S_] split   [_t_] transpose   [_c_] change inner  [_w_] copy
+ [_e_] end        [_N_] bw down   [_H_] bw barf    [_u_]   unwrap        [_s_] splice  [_A_] absorb      [_C_] change outer
+ [_f_] forward    [_p_] up        [_l_] slurp      [_U_]   bw unwrap     [_r_] raise   [_E_] emit        [_k_] kill          [_g_] quit
+ [_b_] backward   [_P_] bw up     [_L_] barf       [_(__{__[_] wrap (){}[]   [_j_] join    [_o_] convolute   [_K_] bw kill       [_q_] quit"
+  ;; Moving
+  ("a" sp-beginning-of-sexp)
+  ("e" sp-end-of-sexp)
+  ("f" sp-forward-sexp)
+  ("b" sp-backward-sexp)
+  ("n" sp-down-sexp)
+  ("N" sp-backward-down-sexp)
+  ("p" sp-up-sexp)
+  ("P" sp-backward-up-sexp)
+
+  ;; Slurping & barfing
+  ("h" sp-backward-slurp-sexp)
+  ("H" sp-backward-barf-sexp)
+  ("l" sp-forward-slurp-sexp)
+  ("L" sp-forward-barf-sexp)
+
+  ;; Wrapping
+  ("R" sp-rewrap-sexp)
+  ("u" sp-unwrap-sexp)
+  ("U" sp-backward-unwrap-sexp)
+  ("(" sp-wrap-round)
+  ("{" sp-wrap-curly)
+  ("[" sp-wrap-square)
+
+  ;; Sexp juggling
+  ("S" sp-split-sexp)
+  ("s" sp-splice-sexp)
+  ("r" sp-raise-sexp)
+  ("j" sp-join-sexp)
+  ("t" sp-transpose-sexp)
+  ("A" sp-absorb-sexp)
+  ("E" sp-emit-sexp)
+  ("o" sp-convolute-sexp)
+
+  ;; Destructive editing
+  ("c" sp-change-inner :exit t)
+  ("C" sp-change-enclosing :exit t)
+  ("k" sp-kill-sexp)
+  ("K" sp-backward-kill-sexp)
+  ("w" sp-copy-sexp)
+
+  ("q" nil)
+  ("g" nil))
+
+(general-define-key
+ "S-SPC" 'hydra-smartparens/body)
+
+#+end_src

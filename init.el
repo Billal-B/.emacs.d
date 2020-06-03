@@ -54,34 +54,46 @@
 ;;----------------------------------------------------------------------------
 ;; Load modules
 ;;----------------------------------------------------------------------------
-(defvar modules-dir (expand-file-name "modules" user-emacs-directory))
+;; (defvar modules-dir (expand-file-name "modules" user-emacs-directory))
 
+;; enable/disable modules here
+(defun featurep! (module)
+  (cond
+   ((eq module 'ivy) nil)
+   ((eq module 'helm) t)
+   ((eq module 'tabs) t)
+   ))
+
+(org-babel-load-file
+   (expand-file-name "config.org"
+		     user-emacs-directory)
+   t)
 ;; base
-(load-org-module "utils.org")
-(load-org-module "core.org")
-(load-org-module "exec-path.org")
-(load-org-module "editor.org")
- 
-;; completion
-(load-org-module "lsp.org")
-(load-org-module "company.org")
-(load-org-module "helm.org")
-(load-org-module "ivy.org")
- 
-;; tools
-(load-org-module "evil.org")
-(load-org-module "org-mode.org")
-(load-org-module "eshell.org")
-
-;; lang
-(load-org-module "clojure.org")
-(load-org-module "python.org")
-
-;; editor
-(load-org-module "projectile.org")
-(load-org-module "smartparens.org")
-(load-org-module "appearance.org")
-(load-org-module "commander.org")
+;; (load-org-module "utils.org")
+;; (load-org-module "core.org")
+;; (load-org-module "exec-path.org")
+;; (load-org-module "editor.org")
+;;  
+;; ;; completion
+;; ;;(load-org-module "lsp.org")
+;; (load-org-module "company.org")
+;; (load-org-module "helm.org")
+;; ;;(load-org-module "ivy.org")
+;;  
+;; ;; tools
+;; (load-org-module "evil.org")
+;; (load-org-module "org-mode.org")
+;; (load-org-module "eshell.org")
+;; 
+;; ;; lang
+;; (load-org-module "clojure.org")
+;; (load-org-module "python.org")
+;; 
+;; ;; editor
+;; (load-org-module "projectile.org")
+;; (load-org-module "smartparens.org")
+;; (load-org-module "appearance.org")
+;; (load-org-module "commander.org")
 
 ;;----------------------------------------------------------------------------
 ;; And finally start the server

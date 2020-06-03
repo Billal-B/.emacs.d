@@ -2,9 +2,16 @@ custom.el
 savefiles/
 transient/
 elpa/
+elpy/
 eshell/
 recentf
 bookmarks
 auto-save-list/
 projectile-bookmarks.eld
 *.elc
+config.el
+.dap-breakpoints
+.lsp-session*
+modules/*.el
+*.cache
+session.*

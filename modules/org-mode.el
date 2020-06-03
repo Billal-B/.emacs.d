@@ -89,5 +89,7 @@
   "F" 'grip-mode
   "g" 'counsel-org-goto
   "G" 'counsel-org-goto-all
+  "h" 'org-insert-heading
+  "i" 'org-insert-item
   "!" 'bb-org-evaluate-and-next
   )
