@@ -930,7 +930,7 @@ code of the process and OUTPUT is its stdout output."
   :ensure t)
 #+end_src
 ** Modeline
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 
 (use-package    feebleline
   :ensure       t
@@ -1223,6 +1223,7 @@ Use shift + arrow keys to switch between visible buffers
 #+end_src
 ** bb/leader
 #+BEGIN_SRC emacs-lisp
+(use-package terminal-here)
 
 (-each '("²" "<f12>")
   (lambda (key)
