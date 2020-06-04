@@ -238,6 +238,7 @@
 ** Bindings
 #+begin_src emacs-lisp
 (mode-leader org-mode-map
+  "c" 'bb/export-cv-current-file
   "f" 'org-gfm-convert-region-to-md
   "F" 'grip-mode
   "g" 'counsel-org-goto
@@ -273,6 +274,25 @@
 #+RESULTS:
 : bb-org-evaluate-and-next
 
+** CV export
+#+begin_src emacs-lisp
+(use-package ox-moderncv
+    :load-path "~/.emacs.d/lisp/org-cv/"
+    :init (require 'ox-moderncv))
+#+end_src
+*** fn
+#+begin_src emacs-lisp
+(defun bb/export-cv (filename)
+  (interactive "fFile to export: ")
+  (org-export-to-file 'moderncv filename)
+  (org-latex-compile filename))
+
+(defun bb/export-cv-current-file ()
+    (interactive)
+  (let ((tex-file (concat (file-name-base buffer-file-name) ".tex")))
+    (org-export-to-file 'moderncv tex-file)
+    (org-latex-compile tex-file)))
+#+end_src
 * Completion
 ** Company
 #+begin_src emacs-lisp
