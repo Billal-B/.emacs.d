@@ -1004,8 +1004,9 @@ code of the process and OUTPUT is its stdout output."
 	    (face-attribute 'default :family)))
 #+end_src
 
-** centaur-tabs
- #+begin_src emacs-lisp
+** FIXME centaur-tabs
+It makes emacs very laggy
+ #+begin_src emacs-lisp :tangle no
 (use-package centaur-tabs
    :demand
    :config
