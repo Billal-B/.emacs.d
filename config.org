@@ -836,7 +836,18 @@
 	       "jupyter")
   (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1))))
 #+end_src
-
+*** Poetry
+#+begin_src emacs-lisp
+(use-package poetry
+ :ensure t)
+#+end_src
+*** Bindings
+#+begin_src emacs-lisp
+(mode-leader python-mode-map
+  "c" 'poetry-tracking-mode
+  "p" 'poetry
+)
+#+end_src
 * Term
 ** Eshell
 *** Configuration
@@ -1045,18 +1056,28 @@ code of the process and OUTPUT is its stdout output."
 
 ** Modeline
 #+BEGIN_SRC emacs-lisp :tangle no
-
-(use-package    feebleline
-  :ensure       t
-  :config       (setq feebleline-msg-functions
-		      '((feebleline-line-number         :post "" :fmt "%5s")
-			(feebleline-column-number       :pre ":" :fmt "%-2s")
-			(feebleline-file-directory      :face feebleline-dir-face :post "")
-			(feebleline-file-or-buffer-name :face font-lock-keyword-face :post "")
-			(feebleline-file-modified-star  :face font-lock-warning-face :post "")
-			(feebleline-git-branch          :face feebleline-git-face :pre " : ")
-			(feebleline-project-name        :align right)))
-		(feebleline-mode 1))
+(setq bb/modeline 'doom)
+(cond ((eq bb/modeline 'feebleline)
+       (use-package feebleline
+	 :config       (setq feebleline-msg-functions
+			     '((feebleline-line-number         :post "" :fmt "%5s")
+			       (feebleline-column-number       :pre ":" :fmt "%-2s")
+			       (feebleline-file-directory      :face feebleline-dir-face :post "")
+			       (feebleline-file-or-buffer-name :face font-lock-keyword-face :post "")
+			       (feebleline-file-modified-star  :face font-lock-warning-face :post "")
+			       (feebleline-git-branch          :face feebleline-git-face :pre " : ")
+			       (feebleline-project-name        :align right)))
+	 (feebleline-mode 1)))
+      ((eq bb/modeline 'doom)
+       (use-package ghub)
+       (use-package doom-modeline
+	 :init (doom-modeline-mode 1)
+	 :config
+	 (setq doom-modeline-icon (display-graphic-p))
+	 (setq doom-modeline-major-mode-color-icon t)
+	 (setq doom-modeline-buffer-state-icon t)
+	 (setq doom-modeline-buffer-modification-icon t)
+	 (setq doom-modeline-github t))))
 #+END_SRC
 
 ** Font
