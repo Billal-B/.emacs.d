@@ -2,7 +2,7 @@
 #+LANGUAGE: en
 #+STARTUP: inlineimages
 #+PROPERTY: header-args :tangle yes :cache yes :results silent :padline no
-#+TODO: TODO(t) | DONE(d) | FIXME (f)
+#+TODO: TODO(t) | DONE(d) | FIXME (f) | NO (n)
 
 * Core
 ** Exec-path
@@ -42,12 +42,15 @@
 (electric-pair-mode t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
+(menu-bar-mode 0)
 (setq mouse-yank-at-point t)
 (global-visual-line-mode t) ; enable visual line mode (soft wrap) globally
 (show-paren-mode t)
 (winner-mode 1)
 (global-auto-revert-mode 1)
+(delete-selection-mode 1) ; deletes with region (see https://stackoverflow.com/questions/2627289/how-to-replace-a-region-in-emacs-with-yank-buffer-contents)
 
+;; basic packages
 (use-package general)
 (use-package hydra)
 (use-package hercules)
@@ -172,8 +175,8 @@
 	      ("C-q" . toggle-company-quickhelp)))
 #+end_src
 
-*** Front-end (taken from Doom)
-#+begin_src emacs-lisp
+*** NO Front-end (taken from Doom)
+#+begin_src emacs-lisp :tangle no
 (use-package company-box
   :hook (company-mode . company-box-mode)
   :config
@@ -1032,10 +1035,11 @@ It makes emacs very laggy
 (use-package parchment-theme
   :config
   (load-theme 'parchment t)
-  (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-  (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-  (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-  (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff"))
+  ;;(set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
+  ;;(set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
+  ;;(set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
+  ;;(set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
+  )
 #+END_SRC
 
 ** all-the-icons
@@ -1056,8 +1060,8 @@ It makes emacs very laggy
 #+end_src
 
 ** Modeline
-#+BEGIN_SRC emacs-lisp :tangle no
-(setq bb/modeline 'doom)
+#+BEGIN_SRC emacs-lisp
+(setq bb/modeline 'feebleline)
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
