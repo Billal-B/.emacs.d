@@ -8,7 +8,7 @@
 ** Exec-path
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell)
-
+(use-package dash)
 (require 'dash)
 #+end_src
 
@@ -668,7 +668,18 @@
    (call-interactively 'org-ctrl-c-ctrl-c)
    (org-babel-next-src-block))
  #+end_src
-
+*** Export resume with org mode
+#+begin_src emacs-lisp
+(use-package ox-moderncv
+    :load-path "~/.emacs.d/lisp/org-cv"
+    :init (require 'ox-moderncv))
+(defun bb/export-resume ()
+  (interactive)
+  (let ((texfile (concat (file-name-sans-extension (buffer-name)) ".tex")))
+    (org-export-to-file 'moderncv texfile)
+    (org-latex-compile texfile)))
+  
+#+end_src
 *** Bindings
  #+begin_src emacs-lisp
  (mode-leader org-mode-map
@@ -690,6 +701,27 @@
      "g" 'counsel-org-goto))
  #+end_src
 
+** Crux
+#+begin_src emacs-lisp
+(use-package crux)
+#+end_src
+
+*** Bindings
+#+begin_src emacs-lisp
+(general-define-key
+ "s-k" 'crux-kill-whole-line
+ "C-c n" 'crux-cleanup-buffer-or-region
+ "M-o" 'crux-smart-open-line
+ "M-O" 'crux-smart-open-line-above
+ "C-c d" 'crux-duplicate-current-line-or-region
+ "C-x C-u" 'crux-upcase-region
+ "C-x C-l" 'crux-downcase-region)
+#+end_src
+
+** Magit
+#+begin_src emacs-lisp
+(use-package magit)
+#+end_src
 * Lang
 ** Lsp
 *** Packages
@@ -1087,6 +1119,15 @@ It makes emacs very laggy
 		    :width 'normal)
 #+END_SRC
 
+* Lisp
+** Open the folder with thunar
+#+begin_src emacs-lisp
+(defun browse-file-directory ()
+  "Open the current file's directory however the OS would."
+  (interactive)
+  (shell-command "thunar")
+)
+#+end_src
 * Bindings
 ** General
 #+BEGIN_SRC emacs-lisp
@@ -1108,18 +1149,6 @@ It makes emacs very laggy
 (global-set-key (kbd "C-M-<left>") 'winner-undo)
 (global-set-key (kbd "C-M-<right>") 'winner-redo)
 #+END_SRC
-
-** Crux
-#+begin_src emacs-lisp
-(general-define-key
- "s-k" 'crux-kill-whole-line
- "C-c n" 'crux-cleanup-buffer-or-region
- "M-o" 'crux-smart-open-line
- "M-O" 'crux-smart-open-line-above
- "C-c d" 'crux-duplicate-current-line-or-region
- "C-x C-u" 'crux-upcase-region
- "C-x C-l" 'crux-downcase-region)
-#+end_src
 
 ** Evil
 #+BEGIN_SRC emacs-lisp
@@ -1214,7 +1243,7 @@ Use shift + arrow keys to switch between visible buffers
  "fd" 'dired-jump
  "fD" 'ranger
  "ff" 'helm-find-files
- "fg" 'thunar
+ "fg" 'browse-file-directory
  "fl" 'helm-locate
  "fn" 'deft
  "fN" 'deft-new-file

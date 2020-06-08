@@ -59,8 +59,8 @@
 ;; enable/disable modules here
 (defun featurep! (module)
   (cond
-   ((eq module 'ivy) t)
-   ((eq module 'helm) nil)
+   ((eq module 'ivy) nil)
+   ((eq module 'helm) t)
    ((eq module 'tabs) t)
    ))
 
