@@ -780,9 +780,8 @@
          (powershell-mode . (lambda () (require 'dap-pwsh)))))
 #+end_src
 
-*** Configuration
-**** Enables lsp in those languages
-***** Python
+*** Enables lsp in those languages
+**** Python
   #+begin_src emacs-lisp
   ;; lsp python
   (add-hook 'python-mode-hook #'lsp-deferred)
@@ -790,7 +789,7 @@
   #+end_src
 
 *** Bindings
-**** TODO [bind] hydra
+**** hydra
   #+begin_src emacs-lisp
   (defhydra hydra-lsp (:exit t :hint nil)
     "
@@ -1031,15 +1030,8 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
-
-(use-package parchment-theme
-  :config
-  (load-theme 'parchment t)
-  ;;(set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-  ;;(set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-  ;;(set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-  ;;(set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
-  )
+(use-package parchment-theme)
+(load-theme 'doom-rouge t)
 #+END_SRC
 
 ** all-the-icons
@@ -1061,7 +1053,7 @@ It makes emacs very laggy
 
 ** Modeline
 #+BEGIN_SRC emacs-lisp
-(setq bb/modeline 'feebleline)
+(setq bb/modeline 'doom) ;; either 'doom or 'feebleline
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
