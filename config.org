@@ -60,7 +60,8 @@
 #+begin_src emacs-lisp
 (general-auto-unbind-keys)
 (general-create-definer mode-leader
-  :prefix "M-ù")
+  :non-normal-prefix "M-ù"
+  :prefix "ù")
 #+end_src
 
 ** Backup
@@ -146,6 +147,100 @@
 (global-set-key  [C-backspace]
 		 'aborn/backward-kill-word)
 #+end_src
+
+* Evil
+** Packages
+ #+begin_src emacs-lisp
+ (use-package evil)
+ (use-package evil-visualstar)
+ (use-package evil-mc)
+ #+end_src
+
+** Configuration
+ #+begin_src emacs-lisp
+ (require 'evil)
+ (require 'general)
+ (require 'evil-mc)
+ (evil-mode 1)
+
+ (setq evil-want-fine-undo nil)
+ #+end_src
+*** TODO use emacs binding in insert mode
+ #+begin_src emacs-lisp
+ (setq evil-insert-state-map (make-sparse-keymap))
+ #+end_src
+*** Disable evils in some modes
+ #+begin_src emacs-lisp
+ (setq evil-default-state 'insert)
+
+ (evil-set-initial-state 'dashboard-mode 'insert)
+ (evil-set-initial-state 'edebug-mode 'insert)
+ (evil-set-initial-state 'term-mode 'insert)
+ (evil-set-initial-state 'magit-mode 'insert)
+ (evil-set-initial-state 'dired-mode 'insert)
+ (evil-set-initial-state 'docker-image-mode 'insert)
+ (evil-set-initial-state 'docker-container-mode 'insert)
+ (evil-set-initial-state 'docker-volume-mode 'insert)
+ (evil-set-initial-state 'docker-network-mode 'insert)
+ (evil-set-initial-state 'help-mode 'insert)
+ (evil-set-initial-state 'help-mode 'insert)
+ (evil-set-initial-state 'xref--xref-buffer-mode 'insert)
+ (evil-set-initial-state 'kubernetes-mode 'insert)
+ (evil-set-initial-state 'flycheck-error-list-mode 'insert)
+ (evil-set-initial-state 'text-mode 'insert)
+ (evil-set-initial-state 'cider-repl-mode 'insert)
+ (evil-set-initial-state 'cider-inspector-mode 'insert)
+ (evil-set-initial-state 'edebug-mode 'insert)
+ (evil-set-initial-state 'treinsert-mode 'insert)
+ (evil-set-initial-state 'org-mode 'insert)
+ #+end_src
+
+*** enable M-. in normal mode
+ #+begin_src emacs-lisp
+ (define-key evil-normal-state-map (kbd "M-.")
+   `(menu-item "" evil-repeat-pop :filter
+               ,(lambda (cmd) (if (eq last-command 'evil-repeat-pop) cmd))))
+ #+end_src
+
+*** Cursors
+ #+begin_src emacs-lisp
+ (setq evil-insert-state-cursor 'bar)
+ (setq evil-emacs-state-cursor 'hbar)
+ #+end_src
+
+*** Multiple cursors : evil-mc
+ #+begin_src emacs-lisp
+ (global-evil-mc-mode 1)
+
+ (general-define-key
+  :states 'normal
+  "gz" 'bb/evil-mc)
+
+ (hercules-def
+  :toggle-funs #'bb/evil-mc
+  :keymap 'evil-mc-cursors-map
+  :transient t
+  :flatten t)
+ 
+ #+end_src
+
+** Binding
+ #+begin_src emacs-lisp
+ (global-set-key (kbd "M-h") 'evil-window-move-far-left)
+ (global-set-key (kbd "M-j") 'evil-window-move-very-bottom)
+ (global-set-key (kbd "M-k") 'evil-window-move-very-top)
+ (global-set-key (kbd "M-l") 'evil-window-move-far-right)
+
+ (global-set-key (kbd "C-z") 'evil-force-normal-state)
+ (global-set-key (kbd "<escape>") 'evil-force-normal-state)
+
+ (define-key evil-normal-state-map (kbd "q") 'nil)
+ (define-key evil-normal-state-map (kbd "Q") 'evil-record-macro)
+ (define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
+
+ (define-key evil-insert-state-map (kbd "C-o") 'evil-jump-backward)
+ (define-key evil-insert-state-map (kbd "C-i") 'evil-jump-forward)
+ #+end_src
 
 * Completion
 ** Company
@@ -848,7 +943,9 @@
     ("M-r" lsp-restart-workspace)
     ("S" lsp-shutdown-workspace))
 
-  (global-set-key (kbd "<f11>") 'hydra-lsp/body)
+  ;; (general-define-key
+  ;;  :keymaps lsp-mode-map
+  ;;  "<f9>" 'hydra-lsp/body)
   #+end_src
 
 ** Python
@@ -1012,11 +1109,11 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
 
   (general-define-key
    :keymaps 'vterm-mode-map
-   "<tab>" 'vterm-copy-mode)
+   "<f9>" 'vterm-copy-mode)
 
   (general-define-key
    :keymaps 'vterm-copy-mode-map
-   "<tab>" 'vterm-copy-mode-done)
+   "<f9>" 'vterm-copy-mode-done)
 
   (use-package vterm-toggle
     :config
@@ -1093,7 +1190,7 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'doom-rouge t)
+(load-theme 'parchment t)
 #+END_SRC
 
 ** all-the-icons
@@ -1145,7 +1242,7 @@ It makes emacs very laggy
 		    :family "ibm plex mono"
 		    :foundry "ibm"
 		    :slant 'normal
-		    :weight 'normal :height 95
+		    :weight 'normal :height 90
 		    :width 'normal)
 #+END_SRC
 
@@ -1158,6 +1255,7 @@ It makes emacs very laggy
   (shell-command "thunar")
 )
 #+end_src
+
 * Bindings
 ** General
 #+BEGIN_SRC emacs-lisp
