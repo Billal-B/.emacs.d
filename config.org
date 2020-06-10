@@ -60,8 +60,9 @@
 #+begin_src emacs-lisp
 (general-auto-unbind-keys)
 (general-create-definer mode-leader
-  :non-normal-prefix "M-ù"
-  :prefix "ù")
+  :states '(normal insert emacs)
+  :prefix "ù"
+  :non-normal-prefix "M-ù")
 #+end_src
 
 ** Backup
@@ -977,6 +978,36 @@
   "p" 'poetry
 )
 #+end_src
+** Clojure
+*** Packages
+  #+begin_src emacs-lisp
+  (use-package cider)
+  (use-package cider-hydra
+    :config
+    (add-hook 'clojure-mode-hook #'cider-hydra-mode))
+  #+end_src
+
+*** Bindings
+  #+begin_src emacs-lisp
+  (mode-leader cider-mode-map
+   "ù" 'cider-test-rerun-test
+   "d" 'cider-hydra-doc/body
+   "e" 'cider-hydra-eval/body
+   "r" 'cider-hydra-repl/body
+   "u" 'cider-hydra-test/body
+   "T" 'cider-test-rerun-failed-tests
+   "t" 'cider-test-run-test)
+  (general-define-key
+   :states 'normal
+   :keymaps 'cider-mode-map
+   "!" 'cider-eval-last-sexp
+   "§" 'cider-eval-last-sexp-in-context)
+  (general-define-key
+   :states '(insert emacs)
+   :keymaps 'cider-mode-map
+   "C-:" 'company-complete)
+  #+end_src
+
 * Term
 ** Eshell
 *** Configuration
@@ -1190,7 +1221,7 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'parchment t)
+(load-theme 'doom-dracula t)
 #+END_SRC
 
 ** all-the-icons
