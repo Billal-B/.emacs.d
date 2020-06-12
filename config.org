@@ -61,8 +61,8 @@
 (general-auto-unbind-keys)
 (general-create-definer mode-leader
   :states '(normal insert emacs)
-  :prefix "ù"
-  :non-normal-prefix "M-ù")
+  :prefix "²"
+  :non-normal-prefix "²")
 #+end_src
 
 ** Backup
@@ -94,11 +94,14 @@
 #+end_src
 
 ** dired
-   Directory first ([[https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst][src]])
+***   Directory first ([[https://www.emacswiki.org/emacs/DiredSortDirectoriesFirst][src]])
 #+begin_src emacs-lisp
 (setq dired-listing-switches "-lXGh --group-directories-first")
 #+end_src
-
+*** quick move [[https://emacs.stackexchange.com/questions/5603/how-to-quickly-copy-move-file-in-emacs-dired][see]]
+#+begin_src emacs-lisp
+(setq dired-dwim-target t)
+#+end_src
 ** ediff
 #+begin_src emacs-lisp
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -253,8 +256,9 @@
   (setq global-company-mode t
 	company-auto-complete nil
 	company-minimum-prefix-length 2
-	company-idle-delay 0.2))
-
+	company-idle-delay 0.2)
+  :bind (:map company-active-map
+	      ("<tab>" . company-complete-common)))
 
 (use-package company-quickhelp
   :init
@@ -271,8 +275,8 @@
 	      ("C-q" . toggle-company-quickhelp)))
 #+end_src
 
-*** NO Front-end (taken from Doom)
-#+begin_src emacs-lisp :tangle no
+*** Front-end (taken from Doom)
+#+begin_src emacs-lisp
 (use-package company-box
   :hook (company-mode . company-box-mode)
   :config
@@ -321,25 +325,25 @@
     (setq all-the-icons-spacer " ")
     :ensure t)
 
-  ;; (use-package ivy-posframe
-  ;;   :ensure
-  ;;   :after ivy
-  ;;   :config
-  ;;   (setq ivy-posframe-parameters
-  ;; 	  '((left-fringe . 2)
-  ;; 	    (right-fringe . 2)
-  ;; 	    (internal-border-width . 2)
-  ;; 	    ))
-  ;;   (setq ivy-posframe-height-alist
-  ;; 	  '((swiper . 15)
-  ;; 	    (swiper-isearch . 15)
-  ;; 	    (t . 10)))
-  ;;   (setq ivy-posframe-display-functions-alist
-  ;; 	  '((complete-symbol . ivy-posframe-display-at-point)
-  ;; 	    (swiper . nil)
-  ;; 	    (swiper-isearch . nil)
-  ;; 	    (t . ivy-posframe-display-at-frame-center)))
-  ;;   (ivy-posframe-mode 1))
+  (use-package ivy-posframe
+    :ensure
+    :after ivy
+    :config
+    (setq ivy-posframe-parameters
+  	  '((left-fringe . 2)
+  	    (right-fringe . 2)
+  	    (internal-border-width . 2)
+  	    ))
+    (setq ivy-posframe-height-alist
+  	  '((swiper . 15)
+  	    (swiper-isearch . 15)
+  	    (t . 10)))
+    (setq ivy-posframe-display-functions-alist
+  	  '((complete-symbol . ivy-posframe-display-at-point)
+  	    (swiper . nil)
+  	    (swiper-isearch . nil)
+  	    (t . ivy-posframe-display-at-frame-center)))
+    (ivy-posframe-mode 1))
 
   (general-define-key
    "M-x" 'counsel-M-x
@@ -386,7 +390,6 @@
 ;; Must be loaded before helm (and maybe treemacs)
 (when (featurep! 'helm)
   (use-package helm)
-  (use-package helm-projectile)
   (use-package helm-ag)
   (use-package helm-org)
   (require 'helm-treemacs-icons)
@@ -411,6 +414,9 @@
 	      (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
 	      (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)))
   ;; helm-projectile
+  (projectile-global-mode)
+  (setq projectile-completion-system 'helm)
+  (use-package helm-projectile)
   (require 'helm-projectile)
   (helm-projectile-on)
 
@@ -435,7 +441,7 @@
 * Editor
 ** TODO treemacs
 ** symbol-overlay : highlight symbol at point
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package symbol-overlay
   :diminish
   :defines iedit-mode
@@ -452,7 +458,9 @@
 	 ([M-f3] . symbol-overlay-remove-all))
   :hook ((prog-mode . symbol-overlay-mode)
 	 (iedit-mode . (lambda () (symbol-overlay-mode -1)))
+	 (lsp-mode . (lambda () (symbol-overlay-mode -1))) ;; redundent with lsp
 	 (iedit-mode-end . symbol-overlay-mode)))
+
 #+end_src
 
 ** flycheck : Enable nice rendering of diagnostics like compile errors
@@ -524,7 +532,7 @@
 (setq projectile-enable-caching t)
 (if (eq system-type 'windows-nt)
     (setq projectile-indexing-method 'native)
-  (setq projectile-indexing-method 'hybrid))
+  (setq projectile-indexing-method 'alien))
 (general-define-key "C-c p" 'projectile-command-map)
 (general-define-key "C-c C-p" 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
@@ -816,6 +824,14 @@
 #+begin_src emacs-lisp
 (use-package magit)
 #+end_src
+
+** MWIM: Better ctrl-a and ctrl-e
+#+begin_src emacs-lisp
+(use-package mwim
+  :config
+  (global-set-key (kbd "C-a") 'mwim-beginning)
+  (global-set-key (kbd "C-e") 'mwim-end))
+#+end_src
 * Lang
 ** Lsp
 *** Packages
@@ -969,7 +985,10 @@
 *** Poetry
 #+begin_src emacs-lisp
 (use-package poetry
- :ensure t)
+  :ensure t
+  :config
+  (setq poetry-tracking-mode 1)
+  (setq poetry-tracking-strategy 'projectile))
 #+end_src
 *** Bindings
 #+begin_src emacs-lisp
@@ -992,6 +1011,7 @@
   (mode-leader cider-mode-map
    "ù" 'cider-test-rerun-test
    "d" 'cider-hydra-doc/body
+   "D" 'cider-debug-defun-at-point
    "e" 'cider-hydra-eval/body
    "r" 'cider-hydra-repl/body
    "u" 'cider-hydra-test/body
@@ -1221,7 +1241,7 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'doom-dracula t)
+(load-theme 'parchment t)
 #+END_SRC
 
 ** all-the-icons
@@ -1243,7 +1263,7 @@ It makes emacs very laggy
 
 ** Modeline
 #+BEGIN_SRC emacs-lisp
-(setq bb/modeline 'doom) ;; either 'doom or 'feebleline
+(setq bb/modeline 'feebleline)
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
@@ -1390,11 +1410,9 @@ Use shift + arrow keys to switch between visible buffers
 #+BEGIN_SRC emacs-lisp
 (use-package terminal-here)
 
-(-each '("²" "<f12>")
-  (lambda (key)
-    (general-define-key
+(general-define-key
   ;; :prefix my-leader
-  :prefix key
+  :prefix "<f12>"
  "e" '(:ignore t :which-key "Edits")
  "ee" 'helm-show-kill-ring
  "eu" 'undo-tree-visualize
@@ -1441,8 +1459,6 @@ Use shift + arrow keys to switch between visible buffers
  "<left>" 'bb/evil-window-move-far-left
  "<up>" 'bb/evil-window-move-very-top
  "<down>" 'bb/evil-window-move-very-bottom
- )))
-
-
+ )
 #+END_SRC
 
