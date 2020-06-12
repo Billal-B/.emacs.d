@@ -98,10 +98,12 @@
 #+begin_src emacs-lisp
 (setq dired-listing-switches "-lXGh --group-directories-first")
 #+end_src
+
 *** quick move [[https://emacs.stackexchange.com/questions/5603/how-to-quickly-copy-move-file-in-emacs-dired][see]]
 #+begin_src emacs-lisp
 (setq dired-dwim-target t)
 #+end_src
+
 ** ediff
 #+begin_src emacs-lisp
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -173,6 +175,7 @@
  #+begin_src emacs-lisp
  (setq evil-insert-state-map (make-sparse-keymap))
  #+end_src
+
 *** Disable evils in some modes
  #+begin_src emacs-lisp
  (setq evil-default-state 'insert)
@@ -351,7 +354,8 @@
    "C-c o" 'swiper
    "C-c r" 'ivy-resume
    "C-c f" 'counsel-recentf
-   "C-c a" 'counsel-ag)
+   "C-c a" 'counsel-ag
+   "C-N" 'counsel-projectile-find-file)
 
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 
@@ -384,7 +388,7 @@
    "RET" 'ivy-alt-done))
 #+end_src
 
-** FIXME [dont work with projectile] helm
+** helm
 #+begin_src emacs-lisp
 ;; all-the-icons support
 ;; Must be loaded before helm (and maybe treemacs)
@@ -460,6 +464,7 @@
 	 (iedit-mode . (lambda () (symbol-overlay-mode -1)))
 	 (lsp-mode . (lambda () (symbol-overlay-mode -1))) ;; redundent with lsp
 	 (iedit-mode-end . symbol-overlay-mode)))
+
 
 #+end_src
 
@@ -770,6 +775,7 @@
    (call-interactively 'org-ctrl-c-ctrl-c)
    (org-babel-next-src-block))
  #+end_src
+
 *** Export resume with org mode
 #+begin_src emacs-lisp
 (use-package ox-moderncv
@@ -782,6 +788,7 @@
     (org-latex-compile texfile)))
   
 #+end_src
+
 *** Bindings
  #+begin_src emacs-lisp
  (mode-leader org-mode-map
@@ -832,6 +839,7 @@
   (global-set-key (kbd "C-a") 'mwim-beginning)
   (global-set-key (kbd "C-e") 'mwim-end))
 #+end_src
+
 * Lang
 ** Lsp
 *** Packages
@@ -982,6 +990,7 @@
 	       "jupyter")
   (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1))))
 #+end_src
+
 *** Poetry
 #+begin_src emacs-lisp
 (use-package poetry
@@ -990,6 +999,7 @@
   (setq poetry-tracking-mode 1)
   (setq poetry-tracking-strategy 'projectile))
 #+end_src
+
 *** Bindings
 #+begin_src emacs-lisp
 (mode-leader python-mode-map
@@ -997,6 +1007,7 @@
   "p" 'poetry
 )
 #+end_src
+
 ** Clojure
 *** Packages
   #+begin_src emacs-lisp
@@ -1027,6 +1038,67 @@
    :keymaps 'cider-mode-map
    "C-:" 'company-complete)
   #+end_src
+
+** Scala
+Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
+#+begin_src emacs-lisp
+(use-package scala-mode
+  :mode "\\.s\\(cala\\|bt\\)$")
+
+;; Enable sbt mode for executing sbt commands
+(use-package sbt-mode
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map)
+   ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
+   (setq sbt:program-options '("-Dsbt.supershell=false"))
+)
+
+;; Enable nice rendering of diagnostics like compile errors.
+(use-package flycheck
+  :init (global-flycheck-mode))
+
+(use-package lsp-mode
+  ;; Optional - enable lsp-mode automatically in scala files
+  :hook  (scala-mode . lsp)
+         (lsp-mode . lsp-lens-mode)
+  :config (setq lsp-prefer-flymake nil))
+
+;; Add metals backend for lsp-mode
+(use-package lsp-metals)
+
+;; Enable nice rendering of documentation on hover
+(use-package lsp-ui)
+
+;; lsp-mode supports snippets, but in order for them to work you need to use yasnippet
+;; If you don't want to use snippets set lsp-enable-snippet to nil in your lsp-mode settings
+;;   to avoid odd behavior with snippets and indentation
+(use-package yasnippet)
+
+;; Add company-lsp backend for metals
+(use-package company-lsp)
+
+;; Use the Debug Adapter Protocol for running tests and debugging
+(use-package posframe
+  ;; Posframe is a pop-up tool that must be manually installed for dap-mode
+  )
+(use-package dap-mode
+  :hook
+  (lsp-mode . dap-mode)
+  (lsp-mode . dap-ui-mode)
+  )
+
+;; Use the Tree View Protocol for viewing the project structure and triggering compilation
+(use-package lsp-treemacs
+  :config
+  (setq lsp-metals-treeview-show-when-views-received t)
+  )
+#+end_src
 
 * Term
 ** Eshell
@@ -1183,6 +1255,7 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
    "C-M-!" 'vterm-toggle)
   )
 #+end_src
+
 * Appearance
 ** General
 #+begin_src emacs-lisp
@@ -1241,7 +1314,7 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'parchment t)
+(load-theme 'leuven t)
 #+END_SRC
 
 ** all-the-icons
