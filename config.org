@@ -5,10 +5,11 @@
 #+TODO: TODO(t) | DONE(d) | FIXME (f) | NO (n)
 
 * Core
-** Exec-path
+** Basic packages
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell)
 (use-package dash)
+(use-package highlight)
 (require 'dash)
 #+end_src
 
@@ -509,6 +510,17 @@
 #+end_src
 * Editor
 ** TODO treemacs
+** Neotree
+#+begin_src emacs-lisp
+(defun bb/neotree-hook ()
+  (visual-line-mode -1))
+(use-package neotree
+  :hook (neotree-mode . bb/neotree-hook)
+  :config
+  (require 'neotree)
+  (setq neo-smart-open t)
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+#+end_src
 ** symbol-overlay : highlight symbol at point
 #+begin_src emacs-lisp :tangle no
 (use-package symbol-overlay
@@ -1329,8 +1341,8 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
 (auto-composition-mode 0)
 #+end_src
 
-** Dashboard
- #+begin_src emacs-lisp
+** NO Dashboard
+ #+begin_src emacs-lisp :tangle no
 (setq recentf-exclude (org-agenda-files))
 (use-package dashboard
    :ensure t
@@ -1379,8 +1391,8 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'doom-nord-light t)
-(load-theme 'parchment t)
+(load-theme 'doom-moonlight t) ;; moon light / rouge
+;;(load-theme 'parchment t)
 #+END_SRC
 
 ** all-the-icons
@@ -1566,6 +1578,7 @@ Use shift + arrow keys to switch between visible buffers
  "fO" 'helm-org-rifle-org-directory
  "fr" 'helm-recentf
  "ft" 'treemacs-add-and-display-current-project
+ "fT" 'neotree
  "m" 'hydra-multiple-cursors/body
  "o" '(:ignore t :which-key "Search (occur/ag)")
  "oa" 'helm-do-grep-ag
@@ -1579,6 +1592,7 @@ Use shift + arrow keys to switch between visible buffers
  "td" 'docker
  "tk" 'kubernetes-overview
  "tm" 'magit-status
+ "tp" 'poetry
  "tt" 'terminal-here
  "t+" 'calc
  "w" '(:ignore t :which-key "Window")
