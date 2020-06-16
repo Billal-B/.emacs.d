@@ -467,6 +467,13 @@
   (require 'helm-projectile)
   (helm-projectile-on)
 
+  ;; helm front
+  (setq helm-display-function #'helm-display-buffer-in-own-frame)
+  (setq helm-show-completion-display-function #'helm-display-buffer-in-own-frame)
+  (setq helm-actions-inherit-frame-settings t)
+
+  ;; helm company
+  (use-package helm-company)
   ;; bindings
   (general-define-key
    "C-c o" 'helm-occur
@@ -476,15 +483,30 @@
    "C-x b" 'helm-buffers-list
    "C-x C-b" 'helm-buffers-list
    "C-c r" 'helm-resume
+   "C-M-:" 'helm-company
    "C-c f" 'helm-recentf)
   (general-define-key
    :keymaps 'helm-map
    "<tab>" 'helm-execute-persistent-action
    "C-i" 'helm-execute-persistent-action
    "C-z"  'helm-select-action)
+
+  (general-define-key
+   :keymaps 'helm-ag-mode-map
+   "RET" 'bb/helm-ag-mode-jump-other-window)
   )
 #+end_src
-
+*** lisp
+#+begin_src emacs-lisp
+(require 'highlight)
+(defun bb/helm-ag-mode-jump-other-window ()
+  "Not documented."
+  (interactive)
+  (let ((line (helm-current-line-contents)))
+    (helm-ag--find-file-action line 'find-file-other-window helm-ag--search-this-file-p)
+    (hlt-highlight-symbol)
+    (other-window -1)))
+#+end_src
 * Editor
 ** TODO treemacs
 ** symbol-overlay : highlight symbol at point
@@ -1357,7 +1379,8 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'doom-dracula t)
+(load-theme 'doom-nord-light t)
+(load-theme 'parchment t)
 #+END_SRC
 
 ** all-the-icons
@@ -1379,7 +1402,7 @@ It makes emacs very laggy
 
 ** Modeline
 #+BEGIN_SRC emacs-lisp
-(setq bb/modeline 'feebleline)
+(setq bb/modeline 'doom)
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
