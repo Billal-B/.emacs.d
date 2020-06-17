@@ -600,13 +600,37 @@
 
 ** Avy
 #+begin_src emacs-lisp
-(setq avy-all-windows t)
+(use-package avy
+  :config
+  (setq avy-all-windows t)
+  (setq avy-keys '(?h ?j ?k ?l ?m ?g ?y ?u ?i ?o ?p ?t ?f ?v ?b ?n ?a ?z ?e ?r ?q ?s ?d ?w ?x))
+  )
 ;;(setq avy-keys (loop for c from ?a to ?z collect c))
 #+end_src
 
 *** Bindings
-#+begin_src 
-(general-define-key "M-z" 'avy-goto-char-timer)
+#+begin_src emacs-lisp
+(defhydra hydra-avy (:exit t :hint nil)
+  "
+ Line^^       Region^^        Goto
+----------------------------------------------------------
+ [_y_] yank   [_Y_] yank      [_s_] timed char  [_c_] char
+ [_m_] move   [_M_] move      [_z_] word        [_Z_] any word
+ [_k_] kill   [_K_] kill      [_l_] line        [_L_] end of line"
+  ("s" avy-goto-char-timer)
+  ("c" avy-goto-char)
+  ("z" avy-goto-word-1)
+  ("Z" avy-goto-word-0)
+  ("l" avy-goto-line)
+  ("L" avy-goto-end-of-line)
+  ("m" avy-move-line)
+  ("M" avy-move-region)
+  ("k" avy-kill-whole-line)
+  ("K" avy-kill-region)
+  ("y" avy-copy-line)
+  ("Y" avy-copy-region))
+
+(general-define-key "M-z" 'hydra-avy/body)
 #+end_src
 
 ** Projectile
@@ -879,12 +903,12 @@
 
  (when (featurep! 'helm)
    (mode-leader org-mode-map
-     "g" 'helm-org-in-buffer-headings
-     "G" 'helm-org-rifle))
+     "²" 'helm-org-in-buffer-headings
+     "g" 'helm-org-rifle))
 
  (when (featurep! 'ivy)
    (mode-leader org-mode-map
-     "g" 'counsel-org-goto))
+     "²" 'counsel-org-goto))
  #+end_src
 
 ** Crux
@@ -946,22 +970,24 @@
   :config
   (lsp-ui-imenu-enable t)
   (lsp-ui-peek-enable t)
+  (setq lsp-modeline-code-actions-enable t) ;; see https://github.com/emacs-lsp/lsp-mode/pull/1781
   (setq lsp-ui-doc-mode t
-        lsp-ui-doc-position 'bottom
-        lsp-ui-doc-alignment 'window
-        lsp-ui-doc-include-signature t
-        lsp-ui-sideline-mode nil
-        lsp-ui-sideline-show-hover t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-ignore-duplicate t
-        lsp-ui-sideline-show-symbol t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-imenu-enable t
-        lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
-                              ,(face-foreground 'font-lock-string-face)
-                              ,(face-foreground 'font-lock-constant-face)
-                              ,(face-foreground 'font-lock-variable-name-face)))
+	lsp-ui-doc-position 'bottom
+	lsp-ui-doc-alignment 'window
+	lsp-ui-doc-include-signature t
+
+	lsp-ui-sideline-mode nil
+	lsp-ui-sideline-show-hover nil
+	lsp-ui-sideline-show-diagnostics t
+	lsp-ui-sideline-ignore-duplicate t
+	lsp-ui-sideline-show-symbol t
+	lsp-ui-sideline-show-code-actions t
+	lsp-ui-sideline-show-code-actions t
+	lsp-ui-imenu-enable t
+	lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
+			      ,(face-foreground 'font-lock-string-face)
+			      ,(face-foreground 'font-lock-constant-face)
+			      ,(face-foreground 'font-lock-variable-name-face)))
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
   (define-key lsp-ui-mode-map (kbd "C-q") 'lsp-ui-doc-glance)
@@ -1097,7 +1123,7 @@
 *** Bindings
   #+begin_src emacs-lisp
   (mode-leader cider-mode-map
-   "ù" 'cider-test-rerun-test
+   "²" 'cider-test-rerun-test
    "d" 'cider-hydra-doc/body
    "D" 'cider-debug-defun-at-point
    "e" 'cider-hydra-eval/body
@@ -1333,7 +1359,7 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
   )
 #+end_src
 
-* Appearance
+* Appearence
 ** General
 #+begin_src emacs-lisp
 (blink-cursor-mode 0)
@@ -1391,7 +1417,10 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (use-package parchment-theme)
-(load-theme 'doom-moonlight t) ;; moon light / rouge
+;;(load-theme 'doom-moonlight t) ;; moon light / rouge
+;;(set-face-attribute 'region nil :background "#000000")
+(load-theme 'parchment t)
+
 ;;(load-theme 'parchment t)
 #+END_SRC
 
@@ -1472,7 +1501,6 @@ It makes emacs very laggy
 (global-set-key (kbd "C-j") 'windmove-down)
 (global-set-key (kbd "C-l") 'windmove-right)
 (global-set-key (kbd "C-:") 'company-complete)
-(global-set-key (kbd "M-*") 'avy-goto-char-timer)
 (global-set-key (kbd "M-,") 'kill-buffer-and-window)
 (global-set-key (kbd "C-!") 'bb-eshell-projectile-here)
 (global-set-key (kbd "C-M-<left>") 'winner-undo)
