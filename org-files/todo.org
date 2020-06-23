@@ -1,0 +1,217 @@
+#+TODO: TODO IN-PROGRESS | DONE
+#+COLUMNS: %25ITEM %5TODO %1PRIORITY %10TAGS
+#+COLUMNS: %25ITEM(Task) %5TODO(To-do) %1PRIORITY %10TAGS
+
+* ADYL
+:CATEGORY: ADYL
+** DONE AYLDATA-370 Export billing stat by hour
+   CLOSED: [2019-12-03 mar. 17:40]
+
+** DONE IN-PROGRESS [#A] manadge deal stat
+   CLOSED: [2019-12-16 lun. 17:04]
+  :LOGBOOK:
+  CLOCK: [2019-12-03 Thu 16:34]
+  :END:
+- [ ] Make in work in cluster and check the output in GCS
+- [ ] Clean up the code
+
+** DONE [#A] Fix manadge job
+   CLOSED: [2019-12-16 lun. 17:04]
+  :LOGBOOK:
+  CLOCK: [2019-13-04 mer. 11:54]--[2019-12-04 mer. 11:54] =>  0:00
+  :END:
+- [X] AYLDATA-371 DealType should be RevenueAuctionType from partner table in Manadge Deal export
+   CLOSED: [2019-12-03 mar. 17:40]
+- [X] AYLDATA-373 Export Deals in json format with lists column
+   CLOSED: [2019-12-03 mar. 17:40]
+- [X] AYLDATA-374 BuyerId should be SeatId
+- [X] advertiser (todo in deal id pr)
+- [X] TODO AYLDATA-375 FloorPrice should be in 10e-3$ not 10e-6
+** DONE [#C] investigate why some days are skipped in job
+- [ ] ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2019-12-01 to=2019-12-02"
+- [ ] ./scripts/run_job.sh -s user -j manadge.ExportDeal -a "from=2019-12-01 to=2019-12-02"
+
+** DONE [#A] ask gregoire if we want to load all the platform DS (ie a month) by not specifying from to dates
+   CLOSED: [2019-12-12 jeu. 14:13] DEADLINE: <2019-12-12 jeu.>
+because it makes the join 30 times bigger
+
+** DONE [#A] slack notif
+   CLOSED: [2019-12-24 mar. 10:52]
+- to be done in airflow python code
+- there is an airflow connector ?
+https://medium.com/datareply/integrating-slack-alerts-in-airflow-c9dcd155105
+- slack creds
+cluster leak checker
+
+** DONE [#A] update airflow version
+   CLOSED: [2019-12-24 mar. 10:52]
+bc of bug https://issues.apache.org/jira/browse/AIRFLOW-4262 which impact slack webhook
+** DONE [#B] Aggregate AdServerStat by attempt
+   CLOSED: [2020-01-29 mer. 15:33] DEADLINE: <2020-01-15 mer.>
+   :LOGBOOK:
+   CLOCK: [2019-12-24 mar. 10:53]
+   :END:
+
+** DONE [#A] tell greg that there are multiple visitor per attempt
+   CLOSED: [2020-01-02 jeu. 15:37]
+   [2019-12-31 mar.]
+** DONE [#A] no deal id in stat + broken revenue for deal stat manadge
+   CLOSED: [2020-01-06 lun. 17:02]
+   [2020-01-03 ven. 14:56]
+** DONE [#A] ask chris or JM why no deal id in ad server stat
+   CLOSED: [2020-01-06 lun. 11:37]
+   [2020-01-03 ven. 17:08]
+** DONE ask chris if it's useful to have adserver stats for adserver grouped by attempt but without dealID
+   CLOSED: [2020-01-06 lun. 11:36]
+   [2020-01-06 lun. 10:56]
+** DONE [#A] manadge : put stat with deal id in different file than stat without
+   CLOSED: [2020-01-08 mer. 09:50]
+   [2020-01-06 lun. 16:59]
+** DONE [#A] deploy airflow on prod
+   CLOSED: [2020-01-08 mer. 09:50]
+   [2020-01-07 mar. 10:32]
+** DONE [#B] add min item/max item/min user/max user in als hyper opt
+   DEADLINE: <2020-01-09 jeu.>
+hyper opt res are written in conf
+   [2020-01-07 mar. 10:55]
+** DONE [#A] investigate why some days are skipped in billing job
+   DEADLINE: <2020-01-08 mer.>
+   [2020-01-08 mer. 10:28]
+- [ ] no billing data in postgre for 2019-12-07
+- [ ] no postgre-sql backup for the 2019-12-06 (company, realm, placement, site, broker_partner)
+*** issue is in adserverStat data loading
+turns out it was because of :
+ ~if (from.until(LocalDate.now()).getDays > 5) coldLocation else location~
+- in transformBillingStat : dataSource.count = 0 & companyContext (etc...) !=0
+**** ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2020-01-02 to=2020-01-03"
+>>>>>>>> parquetLocation CloudDirLocation(ayl-datawarehouse-adserver-stats-cold,)
+>>>>>>>> base pathgs://ayl-datawarehouse-adserver-stats-cold
+>>>>>>>> from2020-01-02
+>>>>>>>> to2020-01-03
+**** ./scripts/run_job.sh -s user -j TransformBillingStats -a "from=2019-12-07 to=2019-12-08"
+>>>>>>>> parquetLocation CloudDirLocation(ayl-datawarehouse-adserver-stats,)
+>>>>>>>> base pathgs://ayl-datawarehouse-adserver-stats
+>>>>>>>> from2019-12-07
+>>>>>>>> to2019-12-08
+** DONE review Alexis PR on scala 2.12
+   SCHEDULED: <2020-01-14 mar.>
+   :PROPERTIES:
+   :ID:       a4eefc55-9ca4-45e8-b9e2-df225a6a3ee4
+   :END:
+  [2020-01-13 lun. 15:50]
+
+** DONE [Billing] fix stats
+   CLOSED: [2020-01-17 ven. 14:26] SCHEDULED: <2020-01-14 mar.>
+*** The stats are correct on a day basis but are broken on a hour
+*** Query : number of timestamp where hour = 00
+df.withColumn("timestamp", timestamp($"PublishedAt")).select($"publishedat", $"timestamp").where($"timestamp" === "2020-01-10 00:00:00").count
+res2: Long = 98681727
+
+scala> val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-10/hour=00").cache
+df: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [Uid: string, DC: string ... 48 more fields]
+
+scala> df.withColumn("timestamp", timestamp($"PublishedAt")).select($"publishedat", $"timestamp").where($"timestamp" === "2020-01-10 00:00:00").count
+res9: Long = 98681727
+
+scala> df.count()
+res10: Long = 98681727
+
+=> the issue is not with the timestamp fn
+*** The stats are correct on a day basis but are broken on a hour basis
+*** Big offset for the hour 00 and small offset for other hours
+
+*** If timestamp for price pub & price adv then take price pub TS
+*** Don't groupBy attempt
+** DONE find why manadge job fails on the 5th november
+   CLOSED: [2020-01-21 mar. 10:10]
+   [2020-01-15 mer. 11:18]
+   It was because we tried to load the data with the wrong schema.
+   Solution : explicitely specify the
+
+** DONE create ETL job clickers identification
+   CLOSED: [2020-02-05 mer. 14:35]
+   [2020-01-21 mar. 12:05]
+Create a job that load data using date-etl-job context. Need to create a case class that extends a base trait
+for adServerStat, and add annotation in the case class def.
+Only keep adserver where eventKind is visible impression or click
+Name it VisibleImpression.
+*** data are 1.5GB, too much ?
+val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-21/hour=00").cache
+df.groupBy($"Attempt").agg(first($"DC")).count()
+res2: Long = 36760831
+df.where($"EventKind" === "CLICK" || $"EventKind" === "VISIBLE_IMPRESSION").groupBy($"Attempt").agg(first($"DC")).count()
+res3: Long = 417580
+** DONE set date to the 26 in data-etl-job
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-28 mar. 17:14]
+** DONE filter on origin for clickers etl
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-29 mer. 15:15]
+** DONE check if the transform adserver stat job works correctly
+   CLOSED: [2020-02-03 lun. 11:00]
+   [2020-01-29 mer. 15:52]
+** DONE reads greg PR on manadge stat
+   CLOSED: [2020-02-11 mar. 09:41]
+   [2020-02-05 mer. 17:18]
+** DONE Make a DagBuilder for data-scala-ml
+   CLOSED: [2020-02-26 mer. 17:31]
+To run make airflow-dev
+   [2020-02-10 lun. 18:46]
+** DONE Refactor dagBuilder (data-scala-ml) + extract timestamp from date (visibleImpression)
+   CLOSED: [2020-02-26 mer. 17:32]
+   [2020-02-11 mar. 17:32]
+** DONE Check rtb transactions
+   CLOSED: [2020-02-26 mer. 17:31]
+   [2020-02-26 mer. 11:43]
+** DONE review alexis PR MLeap model actor serving
+   CLOSED: [2020-03-25 mer. 15:31]
+   [2020-03-03 mar. 18:07]
+** DONE adds run in currencies makefile and use it in data-job-scheduler
+   CLOSED: [2020-03-25 mer. 15:31]
+   [2020-03-23 lun. 11:35]
+** Currencies
+*** DONE new dag data job scheduler
+    CLOSED: [2020-03-25 mer. 15:32]
+    [2020-03-25 mer. 15:29]
+*** DONE deploy post gres in kube
+    CLOSED: [2020-03-25 mer. 16:48]
+    [2020-03-25 mer. 15:29]
+*** DONE restore prod data on db
+    CLOSED: [2020-03-27 ven. 16:33]
+    [2020-03-25 mer. 15:30]
+*** IN-PROGRESS schedule job daily
+    [2020-03-25 mer. 15:30]
+* Maison
+** DONE Appeler ARPEJ
+   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-08 lun.>
+Pour savoir pourquoi ils m'ont prélevé tout le mois
+** DONE Le frigo est livré entre 9h et 17h (MAZET)
+   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-10 mer.>
+** DONE Appeler agence
+   CLOSED: [2020-06-10 mer. 09:20] SCHEDULED: <2020-06-08 lun.>
+Pour les prises cassées et l'interphone
+** DONE Le sommier est livré 
+   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-13 sam.>
+** DONE Le lave vaisselle est livré + installé
+   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-11 jeu.>
+* Prog
+:agenda-group: others
+** TODO [#B] setup org super agenda
+** TODO [#C] website to store all my pdf, links etc
+** TODO emacs plugin for file modif history
+** TODO emacs plugin to find / switch to frame by buffer name
+** TODO emacs plugin for github code review
+** TODO [#C] hydra bindings for winner undo/redo
+** DONE in conf/packages.el replace default pdf viewer
+   CLOSED: [2019-09-11 Wed 09:48]
+(setq openwith-associations '(("\\.pdf\\'" "xpdf" (file))))
+=> (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))))
+** TODO add emacs icon
+in .local/share/applications/userapp-\"emacsclient\"-PKRNUZ.desktop
+
+** TODO uncomment in prelude-python.el
+=> package not available in melpa
+;;(unless (package-installed-p 'pyvenv)
+  ;;(package-install 'pyvenv))
+** TODO chatbot in clj
+** TODO interface to sync my github projects

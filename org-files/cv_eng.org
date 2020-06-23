@@ -1,0 +1,69 @@
+#+TITLE: Software Engineer
+#+AUTHOR: Billal Boudjoghra
+#+email: billal.bou@gmail.com
+#+ADDRESS: 3 avenue du Général de Gaulle
+#+ADDRESS: 94220 - Charenton-le-Pont
+#+MOBILE: +33 6 67 45 41 62
+#+GITHUB: Billal-B
+#+LINKEDIN: billal-boudjoghra
+#+PHOTO: 2020-01-22.png
+# CV theme - options include: 'casual' (default), 'classic', 'oldstyle' and 'banking'
+#+CVSTYLE: banking
+# CV color - options include: 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+#+CVCOLOR: green
+* Work Experiences
+** Back-end developper
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     01-01-2018
+:TO:     30-09-2019
+:EMPLOYER: Sportagraph
+:END:
+- *Stack*: Scala, AWS (S3, Lambda), MongoDB, ES, OpenCV
+- implemented a computer vision solution (automatic summarization in sport videos) with OpenCV and AWS Lambda
+- implemented an analytics extractor for social medias (Facebook, Twitter and Youtube)
+- integrated AWS Rekognition into the Sportagraph product
+- implemented a language detection module
+- setup REST and JSON RPC API
+** Data engineer
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     01-10-2019
+:TO:     ...
+:EMPLOYER: Adyoulike
+:END:
+- *Stack* : Scala, Python, Spark, Docker, Airflow, Jenkins, Kafka, PostgreSQL, GCP...
+- Job description : As a data engineer at Adyoulike; my most common task is to implement ETL jobs in Spark. Most of those jobs are run daily, have to handle more than 100gb of input data and must finish in less than an hour, so the code must be as efficient (speed/cost) as possible.
+  We're a small team, so I often take part in architecture and ML discussion with the lead data engineer and the data scientist. Other than ETL jobs, I've also worked on implementing two Kafka consumers that warns the infrastucture team when something unexpected happens.
+  We do CI/CD using Jenkins, and the code is tested as much as possible. All the code is pushed on the servers using docker images.
+
+* Education
+** MSC in Big Data and Machine Learning
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     2017 
+:TO:     2019
+:EMPLOYER: Université Paris VIII - Saint Denis
+:END:
+** BSC in Computer Science and Mathematics
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:   2013
+:TO:     2016
+:EMPLOYER: Université Paris VII - Diderot
+:END:
+
+* Skills
+- Procient in Scala and Python (I use them daily at work) and Clojure (hobby language), familier with Java, C, Javascript and Prolog
+- Experienced with Spark 
+- Practical skills with OpenCV, gRPC and Kafka
+- Exeperienced in Linux system administration and CI/CD tools : Docker, Jenkins, Makefile, scripts Shell, Kubernetes, Airflow, Terraform, Git
+- Familar with AWS and GCP : AWS Lambda, Google Cloud Storage and AWS S3, Google Kubernetes Engine, AWS EC2, AWS SNS and AWS SQS, ...
+- Experienced with Postgresql, MongoDB and Datahike
+- Theoretical knownledge in Machine Learning, Deep Learning and Mathematics
+- Spoken languages : english (TOEFL 92/120), french (mother tongue)
+
+* Hobbies
+- Programming (Clojure, Emacs Lisp)
+- Gardening
+- Tennis

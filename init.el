@@ -40,6 +40,7 @@
 ;;----------------------------------------------------------------------------
 ;; Use latest org before calling babel
 (use-package-pin-package 'org "org")
+
 (use-package org
   :ensure org-plus-contrib)
 (require 'org)
@@ -59,9 +60,9 @@
 ;; enable/disable modules here
 (defun featurep! (module)
   (cond
-   ((eq module 'ivy) nil)
-   ((eq module 'helm) t)
-   ((eq module 'tabs) t)
+   ((eq module 'ivy) t)
+   ((eq module 'helm) nil)
+   ((eq module 'tabs) nil)
    ))
 
 (org-babel-load-file

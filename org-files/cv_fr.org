@@ -1,0 +1,67 @@
+#+TITLE: Software Engineer
+#+AUTHOR: Billal Boudjoghra
+#+email: billal.bou@gmail.com
+#+ADDRESS: 3 avenue du Général de Gaulle
+#+ADDRESS: 94220 - Charenton-le-Pont
+#+MOBILE: +33 6 67 45 41 62
+#+GITHUB: Billal-B
+#+LINKEDIN: billal-boudjoghra
+#+PHOTO: 2020-01-22.png
+# CV theme - options include: 'casual' (default), 'classic', 'oldstyle' and 'banking'
+#+CVSTYLE: banking
+# CV color - options include: 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+#+CVCOLOR: green
+* Expériences professionnelles
+** Back-end developper
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     01-01-2018
+:TO:     30-09-2019
+:EMPLOYER: Sportagraph
+:END:
+- *Stack*: Scala, AWS (S3, Lambda), MongoDB, ES, OpenCV
+- implémentation d'une solution de computer vision (résumé automatique de vidéos sportives) avec OpenCV et AWS Lambda
+- implémentation d'un module d'extraction d'analytics de réseaux sociaux (Facebook, Twitter, Youtube)
+- intégration d'AWS Rekognition dans le produit de Sportagraph
+- implémentation d'un module de détection de langage
+- mise en place d'API REST et Json RPC
+** Data engineer
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     01-10-2019
+:TO:     ...
+:EMPLOYER: Adyoulike
+:END:
+- *Stack* : Scala, Python, Spark, Docker, Airflow, Jenkins, Kafka, PostgreSQL, GCP...
+- Description de mon poste : En tant que data engineer chez Adyoulike, mes tâches principales sont d'implémenter des jobs d'ETL avec Spark. Ces jobs tournent chaque jour et ils doivent traîter plus de 100gb de données en moins d'une heure; le code doit donc être le plus efficace possible (vitesse/coût en serveur). À côté de ces jobs d'ETL, j'ai aussi mis en plus deux consumers Kafka ainsi qu'un serveur simple afin de prévenir l'équipe infrastucture des événements suspects. Nous sommes une petite équipe, j'interviens donc régulièrement lors de la phase de conception d'un nouveau module ou bien lorsqu'il faut renseigner les équipes non-techniques sur ce que nous avons fait. Pour la CI/CD, nous utilisons Jenkins et le code est déployé via Docker. Pour finir, nous pratiquons le Test Driven Development et nous tâchons de tester tout ce qui est testable (écriture/lecture en DB, intéraction client/server, ...).
+
+* Diplômes
+** Master II MIASHS: Big Data et Machine Learning
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     2017 
+:TO:     2019
+:EMPLOYER: Université Paris VIII - Saint Denis
+:END:
+** Licence Mathématiques-Informatique-Linguistique
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:   2013
+:TO:     2016
+:EMPLOYER: Université Paris VII - Diderot
+:END:
+
+* Compétences
+- Compétent en Scala et Python, familier avec Clojure (hobby), de bonnes bases en Java, C, Javascript et Prolog.
+- Bonne maîtrise du framework Spark
+- Connaissances pratiques avec OpenCV, gRPC et Kafka
+- Expérimenté avec les outils de CI/CD et en administration Linux : Docker, Jenkins, Makefile, scripts Shell, Kubernetes, Airflow, Terraform, Git
+- Utilisation courante des cloud providers AWS et GCP : Lambda, GCS et S3, GKE, ECS, SNS et SQS, ...
+- Compétent avec les bases de données Postgresql, MongoDB et Datahike
+- Connaissances théoriques en Machine Learning, Deep Learning et Mathématiques
+- Langue parlée : anglais (TOEFL 92/120), français (langue maternelle)
+
+* Hobby
+- Programmation (Lisp, Prolog)
+- Jardinage
+- Tennis

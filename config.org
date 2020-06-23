@@ -36,7 +36,7 @@
 (require 'bb-func)
 (setq user-full-name "Billal B"
       user-mail-address "billal.bou@gmail.com")
-(setq org-directory "~/org-files/")
+(setq org-directory (expand-file-name "org-files" user-emacs-directory))
 (setq display-line-numbers-type nil)
 (global-hi-lock-mode t)
 (global-hl-line-mode 1)
@@ -61,9 +61,7 @@
 #+begin_src emacs-lisp
 (general-auto-unbind-keys)
 (general-create-definer mode-leader
-  :states '(normal insert emacs)
-  :prefix "²"
-  :non-normal-prefix "²")
+  :prefix "²")
 #+end_src
 
 ** Backup
@@ -122,32 +120,32 @@
   "Customize/Smart backward-kill-word."
   (interactive)
   (let* ((cp (point))
-         (backword)
-         (end)
-         (space-pos)
-         (backword-char (if (bobp)
-                            ""           ;; cursor in begin of buffer
-                          (buffer-substring cp (- cp 1)))))
+	 (backword)
+	 (end)
+	 (space-pos)
+	 (backword-char (if (bobp)
+			    ""           ;; cursor in begin of buffer
+			  (buffer-substring cp (- cp 1)))))
     (if (equal (length backword-char) (string-width backword-char))
-        (progn
-          (save-excursion
-            (setq backword (buffer-substring (point) (progn (forward-word -1) (point)))))
-          (setq ab/debug backword)
-          (save-excursion
-            (when (and backword          ;; when backword contains space
-                       (s-contains? " " backword))
-              (setq space-pos (ignore-errors (search-backward " ")))))
-          (save-excursion
-            (let* ((pos (ignore-errors (search-backward-regexp "\n")))
-                   (substr (when pos (buffer-substring pos cp))))
-              (when (or (and substr (s-blank? (s-trim substr)))
-                        (s-contains? "\n" backword))
-                (setq end pos))))
-          (if end
-              (kill-region cp end)
-            (if space-pos
-                (kill-region cp space-pos)
-              (backward-kill-word 1))))
+	(progn
+	  (save-excursion
+	    (setq backword (buffer-substring (point) (progn (forward-word -1) (point)))))
+	  (setq ab/debug backword)
+	  (save-excursion
+	    (when (and backword          ;; when backword contains space
+		       (s-contains? " " backword))
+	      (setq space-pos (ignore-errors (search-backward " ")))))
+	  (save-excursion
+	    (let* ((pos (ignore-errors (search-backward-regexp "\n")))
+		   (substr (when pos (buffer-substring pos cp))))
+	      (when (or (and substr (s-blank? (s-trim substr)))
+			(s-contains? "\n" backword))
+		(setq end pos))))
+	  (if end
+	      (kill-region cp end)
+	    (if space-pos
+		(kill-region cp space-pos)
+	      (backward-kill-word 1))))
       (kill-region cp (- cp 1)))         ;; word is non-english word
     ))
 
@@ -164,12 +162,13 @@
  #+end_src
 
 ** Configuration
- #+begin_src emacs-lisp
+ #+begin_src emacs-lisp :tangle no
  (require 'evil)
  (require 'general)
  (require 'evil-mc)
- (evil-mode 1)
-
+ (evil-mode -1)
+ (setq evil-move-cursor-back nil)
+ (setq evil-move-beyond-eol t)
  (setq evil-want-fine-undo nil)
  #+end_src
 *** TODO use emacs binding in insert mode
@@ -207,7 +206,7 @@
  #+begin_src emacs-lisp
  (define-key evil-normal-state-map (kbd "M-.")
    `(menu-item "" evil-repeat-pop :filter
-               ,(lambda (cmd) (if (eq last-command 'evil-repeat-pop) cmd))))
+	       ,(lambda (cmd) (if (eq last-command 'evil-repeat-pop) cmd))))
  #+end_src
 
 *** Cursors
@@ -229,7 +228,7 @@
   :keymap 'evil-mc-cursors-map
   :transient t
   :flatten t)
- 
+
  #+end_src
 
 ** Binding
@@ -372,25 +371,25 @@
     (setq all-the-icons-spacer " ")
     :ensure t)
 
-  (use-package ivy-posframe
-    :ensure
-    :after ivy
-    :config
-    (setq ivy-posframe-parameters
-  	  '((left-fringe . 2)
-  	    (right-fringe . 2)
-  	    (internal-border-width . 2)
-  	    ))
-    (setq ivy-posframe-height-alist
-  	  '((swiper . 15)
-  	    (swiper-isearch . 15)
-  	    (t . 10)))
-    (setq ivy-posframe-display-functions-alist
-  	  '((complete-symbol . ivy-posframe-display-at-point)
-  	    (swiper . nil)
-  	    (swiper-isearch . nil)
-  	    (t . ivy-posframe-display-at-frame-center)))
-    (ivy-posframe-mode 1))
+  ;; (use-package ivy-posframe
+  ;;   :ensure
+  ;;   :after ivy
+  ;;   :config
+  ;;   (setq ivy-posframe-parameters
+  ;;	  '((left-fringe . 2)
+  ;;	    (right-fringe . 2)
+  ;;	    (internal-border-width . 2)
+  ;;	    ))
+  ;;   (setq ivy-posframe-height-alist
+  ;;	  '((swiper . 15)
+  ;;	    (swiper-isearch . 15)
+  ;;	    (t . 10)))
+  ;;   (setq ivy-posframe-display-functions-alist
+  ;;	  '((complete-symbol . ivy-posframe-display-at-point)
+  ;;	    (swiper . nil)
+  ;;	    (swiper-isearch . nil)
+  ;;	    (t . ivy-posframe-display-at-frame-center)))
+  ;;   (ivy-posframe-mode 1))
 
   (general-define-key
    "M-x" 'counsel-M-x
@@ -399,6 +398,7 @@
    "C-c r" 'ivy-resume
    "C-c f" 'counsel-recentf
    "C-c a" 'counsel-ag
+   "M-y" 'counsel-yank-pop
    "C-N" 'counsel-projectile-find-file)
 
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
@@ -433,6 +433,7 @@
 #+end_src
 
 ** helm
+*** General
 #+begin_src emacs-lisp
 ;; all-the-icons support
 ;; Must be loaded before helm (and maybe treemacs)
@@ -447,7 +448,6 @@
   (helm-mode 1)
 
   (customize-set-variable 'helm-ff-lynx-style-map t) ; allow going up/down dir with helm using arrow keys
-
   (setq helm-display-header-line t
 	helm-autoresize-mode t
 	helm-autoresize-min-height 20
@@ -508,6 +508,7 @@
     (hlt-highlight-symbol)
     (other-window -1)))
 #+end_src
+
 * Editor
 ** TODO treemacs
 ** Neotree
@@ -569,7 +570,16 @@
   :bind ("M-%" . vr/query-replace))
 (require 'visual-regexp-steroids)
 #+end_src
+*** Bindings
+#+begin_src emacs-lisp
+(defun bb/vr-mc-mark ()
+  (interactive)
+  (evil-mode -1)
+  (call-interactively #'vr/mc-mark))
 
+(general-define-key
+ "C-M-%" 'bb/vr-mc-mark)
+#+end_src
 ** YAML
 #+begin_src emacs-lisp
 (use-package yaml-mode
@@ -776,141 +786,6 @@
    "S-SPC" 'hydra-smartparens/body)
   #+end_src
 
-** org-mode
-*** Packages
- #+begin_src emacs-lisp
- (use-package org-bullets)
- (use-package grip-mode)
- (use-package ox-gfm
-   :config
-   (eval-after-load "org"
-   '(require 'ox-gfm nil t)))
- #+end_src
-
-*** Configuration
-**** General
- #+begin_src emacs-lisp
- (setq org-directory (expand-file-name "org-files" user-emacs-directory))
- (setq org-log-done 'time)
-
- (add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
- (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
- (add-to-list 'auto-mode-alist '("\\.rst\\'" . org-mode))
- (add-to-list 'auto-mode-alist '("\\.md\\'" . org-mode))
-
- (setq org-edit-src-content-indentation 0)
- (setq org-confirm-babel-evaluate nil)
- #+end_src
-
- #+RESULTS:
-
-**** Org bullets
- #+begin_src emacs-lisp
- (require 'org-bullets)
- (setq org-bullets-bullet-list
-       '("◉" "○"))
- (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
- #+end_src
-
-**** TODO Agenda
- #+begin_src emacs-lisp
- (setq org-agenda-files (directory-files-recursively "~/org-files/" "\.org$"))
- (setq org-capture-dir (expand-file-name "org-files" user-emacs-directory))
-
- ;; TODO don't use hard written folder for captures
- (setq org-capture-templates
-       '(("t" "Todo (ADYL)" entry (file+headline "~/.emacs.d/org-files/agenda-adyl.org" "TODOS")
-	  "* TODO %?\n  %U\n")
-	 ("a" "Agenda (ADYL)" entry (file+datetree "~/.emacs.d/org-files/agenda-adyl.org" "Agenda")
-	  "* %?\nEntered on %U\n")
-	 ("n" "Note" entry (file+datetree "~/.emacs.d/org-files/notes.org" "Notes")
-	  "* %?\nEntered on %U\n")))
- (setq org-agenda-skip-scheduled-if-done t
-       org-agenda-skip-deadline-if-done t
-       org-agenda-include-deadlines t
-       org-agenda-block-separator nil
-       org-agenda-compact-blocks t
-       org-agenda-start-day nil ;; i.e. today
-       org-agenda-span 1
-       org-agenda-start-on-weekday nil)
- (setq org-agenda-custom-commands
-       '(("c" "Super view"
-	  ((agenda "" ((org-agenda-overriding-header "")
-		       (org-super-agenda-groups
-			'((:name "Today"
-				 :time-grid t
-				 :date today
-				 :order 1)))))
-	   (alltodo "" ((org-agenda-overriding-header "")
-			(org-super-agenda-groups
-			 '((:log t)
-			   (:name "To refile"
-				  :file-path "refile\\.org")
-			   (:name "Next to do"
-				  :todo "NEXT"
-				  :order 1)
-			   (:name "Important"
-				  :priority "A"
-				  :order 6)
-			   (:name "Today's tasks"
-				  :file-path "journal/")
-			   (:name "Due Today"
-				  :deadline today
-				  :order 2)
-			   (:name "Scheduled Soon"
-				  :scheduled future
-				  :order 8)
-			   (:name "Overdue"
-				  :deadline past
-				  :order 7)
-			   (:name "Meetings"
-				  :and (:todo "MEET" :scheduled future)
-				  :order 10)
-			   (:discard (:not (:todo "TODO")))))))))))
- #+end_src
-
-**** Lisp
- #+begin_src emacs-lisp
- (defun bb-org-evaluate-and-next ()
-   (interactive)
-   (call-interactively 'org-ctrl-c-ctrl-c)
-   (org-babel-next-src-block))
- #+end_src
-
-*** Export resume with org mode
-#+begin_src emacs-lisp
-(use-package ox-moderncv
-    :load-path "~/.emacs.d/lisp/org-cv"
-    :init (require 'ox-moderncv))
-(defun bb/export-resume ()
-  (interactive)
-  (let ((texfile (concat (file-name-sans-extension (buffer-name)) ".tex")))
-    (org-export-to-file 'moderncv texfile)
-    (org-latex-compile texfile)))
-  
-#+end_src
-
-*** Bindings
- #+begin_src emacs-lisp
- (mode-leader org-mode-map
-   "c" 'bb/export-cv-current-file
-   "f" 'org-gfm-convert-region-to-md
-   "F" 'grip-mode
-   "h" 'org-insert-heading
-   "i" 'org-insert-item
-   "!" 'bb-org-evaluate-and-next
-   )
-
- (when (featurep! 'helm)
-   (mode-leader org-mode-map
-     "²" 'helm-org-in-buffer-headings
-     "g" 'helm-org-rifle))
-
- (when (featurep! 'ivy)
-   (mode-leader org-mode-map
-     "²" 'counsel-org-goto))
- #+end_src
-
 ** Crux
 #+begin_src emacs-lisp
 (use-package crux)
@@ -939,6 +814,141 @@
   :config
   (global-set-key (kbd "C-a") 'mwim-beginning)
   (global-set-key (kbd "C-e") 'mwim-end))
+#+end_src
+
+* Org-Mode
+** Packages
+#+begin_src emacs-lisp
+(use-package org-bullets)
+(use-package grip-mode)
+(use-package ox-gfm
+  :config
+  (eval-after-load "org"
+  '(require 'ox-gfm nil t)))
+#+end_src
+
+** Configuration
+*** General
+#+begin_src emacs-lisp
+(setq org-directory (expand-file-name "org-files" user-emacs-directory))
+(setq org-log-done 'time)
+
+(add-to-list 'auto-mode-alist '("\\.org\\’" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . org-mode))
+
+(setq org-edit-src-content-indentation 0)
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+#+RESULTS:
+
+*** Org bullets
+#+begin_src emacs-lisp
+(require 'org-bullets)
+(setq org-bullets-bullet-list
+      '("◉" "○"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+*** TODO Agenda
+#+begin_src emacs-lisp
+(setq org-agenda-files (directory-files-recursively org-directory "\.org$"))
+(setq org-capture-dir (expand-file-name "org-files" user-emacs-directory))
+
+;; TODO don't use hard written folder for captures
+(setq org-capture-templates
+      '(("t" "Todo (ADYL)" entry (file+headline "~/.emacs.d/org-files/agenda-adyl.org" "TODOS")
+	 "* TODO %?\n  %U\n")
+	("a" "Agenda (ADYL)" entry (file+datetree "~/.emacs.d/org-files/agenda-adyl.org" "Agenda")
+	 "* %?\nEntered on %U\n")
+	("n" "Note" entry (file+datetree "~/.emacs.d/org-files/notes.org" "Notes")
+	 "* %?\nEntered on %U\n")))
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator nil
+      org-agenda-compact-blocks t
+      org-agenda-start-day nil ;; i.e. today
+      org-agenda-span 1
+      org-agenda-start-on-weekday nil)
+(setq org-agenda-custom-commands
+      '(("c" "Super view"
+	 ((agenda "" ((org-agenda-overriding-header "")
+		      (org-super-agenda-groups
+		       '((:name "Today"
+				:time-grid t
+				:date today
+				:order 1)))))
+	  (alltodo "" ((org-agenda-overriding-header "")
+		       (org-super-agenda-groups
+			'((:log t)
+			  (:name "To refile"
+				 :file-path "refile\\.org")
+			  (:name "Next to do"
+				 :todo "NEXT"
+				 :order 1)
+			  (:name "Important"
+				 :priority "A"
+				 :order 6)
+			  (:name "Today's tasks"
+				 :file-path "journal/")
+			  (:name "Due Today"
+				 :deadline today
+				 :order 2)
+			  (:name "Scheduled Soon"
+				 :scheduled future
+				 :order 8)
+			  (:name "Overdue"
+				 :deadline past
+				 :order 7)
+			  (:name "Meetings"
+				 :and (:todo "MEET" :scheduled future)
+				 :order 10)
+			  (:discard (:not (:todo "TODO")))))))))))
+#+end_src
+
+*** Lisp
+#+begin_src emacs-lisp
+(defun bb-org-evaluate-and-next ()
+  (interactive)
+  (call-interactively 'org-ctrl-c-ctrl-c)
+  (org-babel-next-src-block))
+#+end_src
+
+** Export resume with org mode
+#+begin_src emacs-lisp
+(use-package ox-moderncv
+    :load-path "~/.emacs.d/lisp/org-cv"
+    :init (require 'ox-moderncv))
+(defun bb/export-resume ()
+  (interactive)
+  (let ((texfile (concat (file-name-sans-extension (buffer-name)) ".tex")))
+    (org-export-to-file 'moderncv texfile)
+    (org-latex-compile texfile)))
+
+#+end_src
+
+** Bindings
+#+begin_src emacs-lisp
+(mode-leader org-mode-map
+  "c" 'bb/export-cv-current-file
+  "f" 'org-gfm-convert-region-to-md
+  "F" 'grip-mode
+  "h" 'org-insert-heading
+  "i" 'org-insert-item
+  "!" 'bb-org-evaluate-and-next
+  )
+
+(when (featurep! 'helm)
+  (mode-leader org-mode-map
+    "²" 'helm-org-in-buffer-headings
+    "g" 'helm-org-rifle))
+
+(when (featurep! 'ivy)
+  (mode-leader org-mode-map
+    "²" 'counsel-org-goto))
 #+end_src
 
 * Lang
@@ -1014,23 +1024,23 @@
   ;; if it is not enabled `dap-mode' will use the minibuffer.
   (tooltip-mode 1)
   :bind (:map lsp-mode-map
-              ("<f5>" . dap-debug)
-              ("M-<f5>" . dap-hydra))
+	      ("<f5>" . dap-debug)
+	      ("M-<f5>" . dap-hydra))
   :hook ((after-init . dap-mode)
-         (dap-mode . dap-ui-mode)
-         (dap-session-created . (lambda (_args) (dap-hydra)))
-         (dap-stopped . (lambda (_args) (dap-hydra)))
-         (dap-terminated . (lambda (_args) (dap-hydra/nil)))
+	 (dap-mode . dap-ui-mode)
+	 (dap-session-created . (lambda (_args) (dap-hydra)))
+	 (dap-stopped . (lambda (_args) (dap-hydra)))
+	 (dap-terminated . (lambda (_args) (dap-hydra/nil)))
 
-         (python-mode . (lambda () (require 'dap-python)))
-         (ruby-mode . (lambda () (require 'dap-ruby)))
-         (go-mode . (lambda () (require 'dap-go)))
-         (java-mode . (lambda () (require 'dap-java)))
-         ((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-lldb)))
-         (php-mode . (lambda () (require 'dap-php)))
-         (elixir-mode . (lambda () (require 'dap-elixir)))
-         ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
-         (powershell-mode . (lambda () (require 'dap-pwsh)))))
+	 (python-mode . (lambda () (require 'dap-python)))
+	 (ruby-mode . (lambda () (require 'dap-ruby)))
+	 (go-mode . (lambda () (require 'dap-go)))
+	 (java-mode . (lambda () (require 'dap-java)))
+	 ((c-mode c++-mode objc-mode swift-mode) . (lambda () (require 'dap-lldb)))
+	 (php-mode . (lambda () (require 'dap-php)))
+	 (elixir-mode . (lambda () (require 'dap-elixir)))
+	 ((js-mode js2-mode) . (lambda () (require 'dap-chrome)))
+	 (powershell-mode . (lambda () (require 'dap-pwsh)))))
 #+end_src
 
 *** Enables lsp in those languages
@@ -1169,7 +1179,7 @@ Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
 (use-package lsp-mode
   ;; Optional - enable lsp-mode automatically in scala files
   :hook  (scala-mode . lsp)
-         (lsp-mode . lsp-lens-mode)
+	 (lsp-mode . lsp-lens-mode)
   :config (setq lsp-prefer-flymake nil))
 
 ;; Add metals backend for lsp-mode
@@ -1201,6 +1211,17 @@ Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
   :config
   (setq lsp-metals-treeview-show-when-views-received t)
   )
+#+end_src
+
+** Elisp
+*** Bindings
+#+begin_src emacs-lisp
+(when (featurep! 'ivy)
+   (mode-leader emacs-lisp-mode-map
+     "i" 'counsel-info-lookup-symbol
+     "f" 'counsel-describe-function
+     "v" 'counsel-describe-variable
+     "V" 'counsel-set-variable))
 #+end_src
 
 * Term
@@ -1353,7 +1374,7 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
 		   ;;(dedicated . t) ;dedicated is supported in emacs27
 		   (reusable-frames . visible)
 		   (window-height . 0.3))))
-  
+
   (general-define-key
    "C-M-!" 'vterm-toggle)
   )
@@ -1416,12 +1437,19 @@ It makes emacs very laggy
 ;; (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
 ;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
 ;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
+(setq org-fontify-whole-heading-line t
+      org-src-fontify-natively t
+      org-fontify-quote-and-verse-blocks t
+      org-fontify-done-headline t
+      org-fontify-quote-and-verse-blocks t)
 (use-package parchment-theme)
+(use-package leuven-theme)
 ;;(load-theme 'doom-moonlight t) ;; moon light / rouge
 ;;(set-face-attribute 'region nil :background "#000000")
+;;(load-theme 'doom-one-light t)
+;;(load-theme 'doom-dracula t)
+;;(load-theme 'leuven t)
 (load-theme 'parchment t)
-
-;;(load-theme 'parchment t)
 #+END_SRC
 
 ** all-the-icons
@@ -1443,7 +1471,7 @@ It makes emacs very laggy
 
 ** Modeline
 #+BEGIN_SRC emacs-lisp
-(setq bb/modeline 'doom)
+(setq bb/modeline 'feebleline)
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
@@ -1465,6 +1493,7 @@ It makes emacs very laggy
 	 (setq doom-modeline-buffer-state-icon t)
 	 (setq doom-modeline-buffer-modification-icon t)
 	 (setq doom-modeline-github t))))
+
 #+END_SRC
 
 ** Font
@@ -1473,7 +1502,7 @@ It makes emacs very laggy
 		    :family "ibm plex mono"
 		    :foundry "ibm"
 		    :slant 'normal
-		    :weight 'normal :height 90
+		    :weight 'normal :height 95
 		    :width 'normal)
 #+END_SRC
 
@@ -1641,4 +1670,3 @@ Use shift + arrow keys to switch between visible buffers
  "<down>" 'bb/evil-window-move-very-bottom
  )
 #+END_SRC
-

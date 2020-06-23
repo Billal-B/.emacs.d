@@ -1,0 +1,41 @@
+#+TITLE: Software Engineer
+#+AUTHOR: Billal Boudjoghra
+#+email: billal.bou@gmail.com
+#+ADDRESS: 3 avenue du Général de Gaulle
+#+ADDRESS: 94220 - Charenton-le-Pont
+#+MOBILE: +33 6 67 45 41 62
+#+GITHUB: Billal-B
+#+LINKEDIN: billal-boudjoghra
+#+PHOTO: 2020-01-22.png
+# CV theme - options include: 'casual' (default), 'classic', 'oldstyle' and 'banking'
+#+CVSTYLE: banking
+# CV color - options include: 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+#+CVCOLOR: green
+* Employement
+** Back-end developper
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     <01-01-2018>
+:TO:     <30-09-2019>
+:EMPLOYER: Sportagraph
+:END:
+- Tech: Scala, AWS (S3, Lambda), MongoDB, ES, OpenCV
+- Job description: At Sportagraph, I implemented a computer vision solution (automatic summarization for sport videos) using OpenCV and AWS Lambda; and a social media (Facebook, Twitter & Youtube) analytics extractor
+** Data engineer
+:PROPERTIES:
+:CV_ENV: cventry
+:FROM:     <01-10-2019>
+:TO:     <today>
+:EMPLOYER: Adyoulike
+:END:
+- Tech : Scala, Python, Spark, Docker, Jenkins, Kafka, PostgreSQL, GCP...
+- Job description : As a data engineer at Adyoulike; my most common task is to implement ETL jobs in Spark. Most of those jobs are run daily, have to handle more than 100gb of input data and must finish in less than an hour, so the code must be as efficient (speed/cost) as possible.
+  We're a small team, so I often take part in architecture and ML discussion with the lead data engineer and the data scientist. Other than ETL jobs, I've also worked on implementing two Kafka consumers that warns the infrastucture team when something unexpected happens.
+  We do CI/CD using Jenkins, and the code is tested as much as possible. All the code is pushed on the servers using docker images.
+
+
+* About me
+** Degrees
+I've got a MSC in Big Data and Machine Learning that I got at Université Paris VIII – Saint Denis.
+** Why I may be good fit
+I love programming in Clojure (the line "Become an expert in Clojure" in your job offer really caught my attention) and LISPs in general, my favorite IDE is Emacs; I also like tennis and gardening. All in all, I'd say that I really like programming and learning about it.
