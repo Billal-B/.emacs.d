@@ -1166,6 +1166,7 @@
 #+begin_src emacs-lisp
 (use-package go-mode)
 #+end_src
+
 ** Scala
 Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
 #+begin_src emacs-lisp
@@ -1246,6 +1247,7 @@ Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
  :keymaps 'makefile-mode-map
  "TAB" 'indent-for-tab-command)
 #+end_src
+
 * Term
 ** Eshell
 *** Configuration
@@ -1453,12 +1455,6 @@ It makes emacs very laggy
 
 ** Theme
 #+BEGIN_SRC emacs-lisp
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-;; (load-theme 'leuven t)
-;; (set-face-attribute 'centaur-tabs-selected nil :foreground "#000000" :background "#cceeff")
-;; (set-face-attribute 'centaur-tabs-selected-modified nil :foreground "#880000" :background "#cceeff")
-;; (set-face-attribute 'centaur-tabs-unselected nil :foreground "#808075" :background "#eaffff")
-;; (set-face-attribute 'centaur-tabs-unselected-modified nil :foreground "#880000" :background "#eaffff")
 (setq org-fontify-whole-heading-line t
       org-src-fontify-natively t
       org-fontify-quote-and-verse-blocks t
@@ -1466,11 +1462,7 @@ It makes emacs very laggy
       org-fontify-quote-and-verse-blocks t)
 (use-package parchment-theme)
 (use-package leuven-theme)
-;;(load-theme 'doom-moonlight t) ;; moon light / rouge
-;;(set-face-attribute 'region nil :background "#000000")
-;;(load-theme 'doom-one-light t)
-;;(load-theme 'doom-dracula t)
-;;(load-theme 'leuven t)
+(load-theme 'parchment t)
 (load-theme 'leuven t)
 #+END_SRC
 
