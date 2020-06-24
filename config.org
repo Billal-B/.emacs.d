@@ -1224,6 +1224,13 @@ Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
      "V" 'counsel-set-variable))
 #+end_src
 
+** Makefile
+#+begin_src emacs-lisp
+(general-define-key
+ :states 'insert
+ :keymaps 'makefile-mode-map
+ "TAB" 'indent-for-tab-command)
+#+end_src
 * Term
 ** Eshell
 *** Configuration
@@ -1449,7 +1456,7 @@ It makes emacs very laggy
 ;;(load-theme 'doom-one-light t)
 ;;(load-theme 'doom-dracula t)
 ;;(load-theme 'leuven t)
-(load-theme 'parchment t)
+(load-theme 'leuven t)
 #+END_SRC
 
 ** all-the-icons
