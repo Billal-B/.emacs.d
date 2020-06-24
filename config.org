@@ -1477,8 +1477,9 @@ It makes emacs very laggy
 #+end_src
 
 ** Modeline
+Warning : don't use feebleline as it's broken with other packages (for ex visual-replace)
 #+BEGIN_SRC emacs-lisp
-(setq bb/modeline 'feebleline)
+(setq bb/modeline 'doom)
 (cond ((eq bb/modeline 'feebleline)
        (use-package feebleline
 	 :config       (setq feebleline-msg-functions
