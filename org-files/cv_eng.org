@@ -54,10 +54,10 @@
 :END:
 
 * Skills
-- Procient in Scala and Python (I use them daily at work) and Clojure (hobby language), familier with Java, C, Javascript and Prolog
+- Proficient in Scala and Python (I use them daily at work) and Clojure (hobby language), familiar with Java, C, Javascript and Prolog
 - Experienced with Spark 
 - Practical skills with OpenCV, gRPC and Kafka
-- Exeperienced in Linux system administration and CI/CD tools : Docker, Jenkins, Makefile, scripts Shell, Kubernetes, Airflow, Terraform, Git
+- Experienced in Linux system administration and CI/CD tools : Docker, Jenkins, Makefile, Shell scripts, Kubernetes, Airflow, Terraform, Git
 - Familar with AWS and GCP : AWS Lambda, Google Cloud Storage and AWS S3, Google Kubernetes Engine, AWS EC2, AWS SNS and AWS SQS, ...
 - Experienced with Postgresql, MongoDB and Datahike
 - Theoretical knownledge in Machine Learning, Deep Learning and Mathematics

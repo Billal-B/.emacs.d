@@ -1,0 +1,10 @@
+Hello,
+
+I'm interested in your job offer for the following reasons :
+- I love the startup mentality, I like when things go fast and I prefer to work in small teams
+- I love Clojure and want to use it every day
+That's why I'm applying :D
+As for me; I'm a data engineer working for a startup in AdTech. I really like the company, but since the confinement our missions got a bit less interesting. I mainly use Scala and Python at work; but I use Clojure for my side projects.
+
+Thanks for reading my cover letter,
+Good day to you !
