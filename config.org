@@ -967,10 +967,11 @@
 ;;   to avoid odd behavior with snippets and indentation
 (use-package yasnippet)
 
-(use-package company-lsp
-  :config
-  (require 'company-lsp)
-  (push 'company-lsp company-backends))
+;; deprecated
+;; (use-package company-lsp
+;;   :config
+;;   (require 'company-lsp)
+;;   (push 'company-lsp company-backends))
 #+end_src
 
 **** lsp-ui
@@ -1043,6 +1044,14 @@
 	 (powershell-mode . (lambda () (require 'dap-pwsh)))))
 #+end_src
 
+**** lsp-treemacs
+#+begin_src emacs-lisp
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list
+  :config
+  (lsp-treemacs-sync-mode 1)
+  )
+#+end_src
 *** Enables lsp in those languages
 **** Python
   #+begin_src emacs-lisp
@@ -1118,7 +1127,8 @@
 (mode-leader python-mode-map
   "c" 'poetry-tracking-mode
   "p" 'poetry
-)
+  "r" 'lsp-workspace-restart
+  "w" 'workon)
 #+end_src
 
 ** Clojure
@@ -1152,6 +1162,10 @@
    "C-:" 'company-complete)
   #+end_src
 
+** Golang
+#+begin_src emacs-lisp
+(use-package go-mode)
+#+end_src
 ** Scala
 Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
 #+begin_src emacs-lisp
@@ -1209,6 +1223,7 @@ Taken [[https://scalameta.org/metals/docs/editors/emacs.html][here]]
 ;; Use the Tree View Protocol for viewing the project structure and triggering compilation
 (use-package lsp-treemacs
   :config
+  (lsp-treemacs-sync-mode 1)
   (setq lsp-metals-treeview-show-when-views-received t)
   )
 #+end_src
@@ -1354,9 +1369,9 @@ code of the process and OUTPUT is its stdout output."
       (eshell-toggle))))
 #+end_src
 
-** Vterm
+** NO Vterm
 Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libvterm][see here]])
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package vterm
   :config
   (setq vterm-kill-buffer-on-exit t)
