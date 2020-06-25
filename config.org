@@ -954,10 +954,8 @@
     "²" 'counsel-org-goto))
 #+end_src
 
-* Lang
-** Lsp
-*** Packages
-**** lsp-mode
+* Lsp
+** lsp-mode
 #+begin_src emacs-lisp
 (use-package lsp-mode
   :requires hydra helm helm-lsp
@@ -977,7 +975,7 @@
 ;;   (push 'company-lsp company-backends))
 #+end_src
 
-**** lsp-ui
+** lsp-ui
 #+begin_src emacs-lisp
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -1012,7 +1010,7 @@
   (define-key lsp-ui-mode-map (kbd "M-n") 'helm-lsp-workspace-symbol))
 #+end_src
 
-**** Debug : dap-mode
+** Debug : dap-mode
 #+begin_src emacs-lisp
 (use-package posframe
   ;; Posframe is a pop-up tool that must be manually installed for dap-mode
@@ -1022,6 +1020,7 @@
   :functions dap-hydra/nil
   :diminish
   :config
+  (setq dap-auto-configure-features '(sessions locals controls tooltip))
   ;; enables mouse hover support
   (dap-tooltip-mode 1)
   ;; use tooltips for mouse hover
@@ -1047,7 +1046,7 @@
 	 (powershell-mode . (lambda () (require 'dap-pwsh)))))
 #+end_src
 
-**** lsp-treemacs
+** lsp-treemacs
 #+begin_src emacs-lisp
 (use-package lsp-treemacs
   :commands lsp-treemacs-errors-list
@@ -1055,49 +1054,50 @@
   (lsp-treemacs-sync-mode 1)
   )
 #+end_src
-*** Enables lsp in those languages
-**** Python
-  #+begin_src emacs-lisp
-  ;; lsp python
-  (add-hook 'python-mode-hook #'lsp-deferred)
-  (require 'dap-python)
-  #+end_src
+** Enables lsp in those languages
+*** Python
+ #+begin_src emacs-lisp
+ ;; lsp python
+ (add-hook 'python-mode-hook #'lsp-deferred)
+ (require 'dap-python)
+ #+end_src
 
-*** Bindings
-**** hydra
-  #+begin_src emacs-lisp
-  (defhydra hydra-lsp (:exit t :hint nil)
-    "
-   Buffer^^               Server^^                   Symbol
-  -------------------------------------------------------------------------------------
-   [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
-   [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
-   [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature
-   [_l_] flycheck-list
-  "
-    ("d" lsp-find-declaration)
-    ("D" lsp-ui-peek-find-definitions)
-    ("R" lsp-ui-peek-find-references)
-    ("i" lsp-ui-peek-find-implementation)
-    ("t" lsp-find-type-definition)
-    ("s" lsp-signature-help)
-    ("o" lsp-describe-thing-at-point)
-    ("r" lsp-rename)
-    ("l" lsp-ui-flycheck-list)
+** Bindings
+*** hydra
+ #+begin_src emacs-lisp
+ (defhydra hydra-lsp (:exit t :hint nil)
+   "
+  Buffer^^               Server^^                   Symbol
+ -------------------------------------------------------------------------------------
+  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
+  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
+  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature
+  [_l_] flycheck-list
+ "
+   ("d" lsp-find-declaration)
+   ("D" lsp-ui-peek-find-definitions)
+   ("R" lsp-ui-peek-find-references)
+   ("i" lsp-ui-peek-find-implementation)
+   ("t" lsp-find-type-definition)
+   ("s" lsp-signature-help)
+   ("o" lsp-describe-thing-at-point)
+   ("r" lsp-rename)
+   ("l" lsp-ui-flycheck-list)
 
-    ("f" lsp-format-buffer)
-    ("m" lsp-ui-imenu)
-    ("x" lsp-execute-code-action)
+   ("f" lsp-format-buffer)
+   ("m" lsp-ui-imenu)
+   ("x" lsp-execute-code-action)
 
-    ("M-s" lsp-describe-session)
-    ("M-r" lsp-restart-workspace)
-    ("S" lsp-shutdown-workspace))
+   ("M-s" lsp-describe-session)
+   ("M-r" lsp-restart-workspace)
+   ("S" lsp-shutdown-workspace))
 
-  ;; (general-define-key
-  ;;  :keymaps lsp-mode-map
-  ;;  "<f9>" 'hydra-lsp/body)
-  #+end_src
+ ;; (general-define-key
+ ;;  :keymaps lsp-mode-map
+ ;;  "<f9>" 'hydra-lsp/body)
+ #+end_src
 
+* Lang
 ** Python
    #+begin_src emacs-lisp
 (use-package pyvenv)
