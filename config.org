@@ -588,12 +588,15 @@
     (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 #+end_src
 
-** Dockerfile
+** Docker/Kubernetes
 #+begin_src emacs-lisp
 (use-package dockerfile-mode
   :config
   (require 'dockerfile-mode)
   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+(use-package docker)
+(use-package kubernetes)
 #+end_src
 
 ** Multi-cursor
@@ -1371,9 +1374,9 @@ code of the process and OUTPUT is its stdout output."
       (eshell-toggle))))
 #+end_src
 
-** NO Vterm
+** Vterm
 Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libvterm][see here]])
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package vterm
   :config
   (setq vterm-kill-buffer-on-exit t)
@@ -1402,6 +1405,19 @@ Requires some stuff to be put in .bashrc ([[https://github.com/akermu/emacs-libv
   (general-define-key
    "C-M-!" 'vterm-toggle)
   )
+#+end_src
+
+** terminal-here
+#+begin_src emacs-lisp
+(use-package terminal-here)
+
+(defun bb/terminal-here ()
+  (interactive)
+  (let ((workdir (if (projectile-project-root)
+                     (projectile-project-root)
+                   default-directory)))
+    (call-process-shell-command
+     (concat "xfce4-terminal --working-directory " workdir) nil 0)))
 #+end_src
 
 * Appearence
@@ -1630,8 +1646,6 @@ Use shift + arrow keys to switch between visible buffers
 
 ** Leader
 #+BEGIN_SRC emacs-lisp
-(use-package terminal-here)
-
 (general-define-key
   ;; :prefix my-leader
   :prefix "<f12>"
@@ -1665,7 +1679,7 @@ Use shift + arrow keys to switch between visible buffers
  "tk" 'kubernetes-overview
  "tm" 'magit-status
  "tp" 'poetry
- "tt" 'terminal-here
+ "tt" 'bb/terminal-here
  "t+" 'calc
  "w" '(:ignore t :which-key "Window")
  "wm" 'menu-bar-mode
