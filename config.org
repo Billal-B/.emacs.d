@@ -61,7 +61,9 @@
 #+begin_src emacs-lisp
 (general-auto-unbind-keys)
 (general-create-definer mode-leader
-  :prefix "²")
+  :states '(normal insert emacs)
+  :prefix "²"
+  :non-normal-prefix "²")
 #+end_src
 
 ** Backup
@@ -162,7 +164,7 @@
  #+end_src
 
 ** Configuration
- #+begin_src emacs-lisp :tangle no
+ #+begin_src emacs-lisp
  (require 'evil)
  (require 'general)
  (require 'evil-mc)
@@ -242,7 +244,6 @@
  (global-set-key (kbd "<escape>") 'evil-force-normal-state)
 
  (define-key evil-normal-state-map (kbd "q") 'nil)
- (define-key evil-normal-state-map (kbd "Q") 'evil-record-macro)
  (define-key evil-insert-state-map (kbd "C-k") 'windmove-up)
 
  (define-key evil-insert-state-map (kbd "C-o") 'evil-jump-backward)
@@ -1007,7 +1008,8 @@
 
 (use-package helm-lsp
   :config
-  (define-key lsp-ui-mode-map (kbd "M-n") 'helm-lsp-workspace-symbol))
+  ;;(define-key lsp-ui-mode-map (kbd "M-n") 'helm-lsp-workspace-symbol)
+)
 #+end_src
 
 ** Debug : dap-mode
@@ -1537,6 +1539,65 @@ Warning : don't use feebleline as it's broken with other packages (for ex visual
 		    :width 'normal)
 #+END_SRC
 
+** Git
+#+begin_src emacs-lisp
+(use-package git-gutter
+  :defer t
+  :hook ((markdown-mode . git-gutter-mode)
+         (prog-mode . git-gutter-mode)
+         (conf-mode . git-gutter-mode))
+  :init
+  :config
+  (setq git-gutter:disabled-modes '(org-mode asm-mode image-mode)
+        git-gutter:update-interval 1
+        git-gutter:window-width 2
+        git-gutter:ask-p nil)
+  (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                         :hint nil)
+   "
+ Git gutter:
+   _j_: next hunk        _s_tage hunk     _q_uit
+   _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+   ^ ^                   _p_opup hunk
+   _h_: first hunk
+   _l_: last hunk        set start _R_evision
+ "
+ ("j" git-gutter:next-hunk)
+ ("k" git-gutter:previous-hunk)
+ ("h" (progn (goto-char (point-min))
+             (git-gutter:next-hunk 1)))
+ ("l" (progn (goto-char (point-min))
+             (git-gutter:previous-hunk 1)))
+ ("s" git-gutter:stage-hunk)
+ ("r" git-gutter:revert-hunk)
+ ("p" git-gutter:popup-hunk)
+ ("R" git-gutter:set-start-revision)
+ ("q" nil :color blue)
+ ("Q" (progn (git-gutter-mode -1)
+             ;; git-gutter-fringe doesn't seem to
+             ;; clear the markup right away
+             (sit-for 0.1)
+             (git-gutter:clear))
+             :color blue)))
+(use-package git-gutter-fringe
+  :diminish git-gutter-mode
+  :after git-gutter
+  :demand fringe-helper
+  :config
+  ;; subtle diff indicators in the fringe
+  ;; places the git gutter outside the margins.
+  (setq-default fringes-outside-margins t)
+  ;; thin fringe bitmaps
+  (define-fringe-bitmap 'git-gutter-fr:added
+  [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+  nil nil 'center)
+  (define-fringe-bitmap 'git-gutter-fr:modified
+  [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+  nil nil 'center)
+  (define-fringe-bitmap 'git-gutter-fr:deleted
+  [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
+  nil nil 'center))
+#+end_src
 * Lisp
 ** Open the folder with thunar
 #+begin_src emacs-lisp
@@ -1678,6 +1739,7 @@ Use shift + arrow keys to switch between visible buffers
  "td" 'docker
  "tk" 'kubernetes-overview
  "tm" 'magit-status
+ "tM" 'hydra-git-gutter/body
  "tp" 'poetry
  "tt" 'bb/terminal-here
  "t+" 'calc

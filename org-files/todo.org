@@ -181,21 +181,10 @@ To run make airflow-dev
     [2020-03-25 mer. 15:30]
 *** IN-PROGRESS schedule job daily
     [2020-03-25 mer. 15:30]
-* Maison
-** DONE Appeler ARPEJ
-   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-08 lun.>
-Pour savoir pourquoi ils m'ont prélevé tout le mois
-** DONE Le frigo est livré entre 9h et 17h (MAZET)
-   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-10 mer.>
-** DONE Appeler agence
-   CLOSED: [2020-06-10 mer. 09:20] SCHEDULED: <2020-06-08 lun.>
-Pour les prises cassées et l'interphone
-** DONE Le sommier est livré 
-   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-13 sam.>
-** DONE Le lave vaisselle est livré + installé
-   CLOSED: [2020-06-12 ven. 10:13] SCHEDULED: <2020-06-11 jeu.>
 * Prog
 :agenda-group: others
+** TODO PDF tools
+- [ ] merge pdf
 ** TODO [#B] setup org super agenda
 ** TODO [#C] website to store all my pdf, links etc
 ** TODO emacs plugin for file modif history

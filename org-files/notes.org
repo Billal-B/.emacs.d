@@ -91,8 +91,6 @@ So we have cookies with A and B for this user, so its visitor value will be [A, 
 *** switch kubectl context to datateam project
 gcloud container clusters get-credentials ci --zone europe-west1-d --project datateam-199811
 Fixes : dial tcp 192.168.99.100:8443: i/o timeout error
-*** list
-
 ** Useful CMD
 *** read adserver ds in spark shell
 val df = spark.read.parquet("gs://ayl-datawarehouse-adserver-stats/day=2020-01-08/hour=00").cache
@@ -105,6 +103,25 @@ curl https://$KAFKA_USER:$KAFKA_PW@kafka-json-tap-fra02.ayl.io/\?topic=adserver_
 
 ** Jenkins
 https://build.ayl.io/blue/pipelines/
+** Airflow
+*** Specify date
+In admin -> variables :
+from=2020-05-30, to=2020-06-01
+*** Setup
+Adds 35.189.254.61   airflowdata.ayl.io jupyter.ayl.io dev.airflowdata.ayl.io
+to /etc/hosts
+*** Manadge-upload (-dev)
+Task can be launched individually
+Clear will relaunch the task
+The data for the correct day will be generated
+Maybe adapts this for all the data airflow jobs
+See airflow templates on how the date is loaded (ie {{ ds }})
+** TODO POC see if the data stack can run on OVH
+- S3
+- GCS
+- dataproc
+** The infra teams get our infra
+- See Pacome if pb
 * Scala
 ** Akka
 *** At most one msg processed per actor
@@ -145,7 +162,3 @@ systemctl --user restart emacs.service
 
 ** type > (greater than) and < (lesser than) without the keys on the keyboard
 > : left-alt + shift + x
-* PW
-** adyl
-j0@Dfww8Z&x&
-Gp*#601O2SgF

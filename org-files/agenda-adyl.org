@@ -1,3 +1,6 @@
+* Agenda
+** 2019
+*** 2019-10 octobre
 ***** changed some tests in data-common
 **** 11/10
 ***** successfully loaded the tf model and got the result from the ouput layer
@@ -330,3 +333,18 @@ Entered on [2020-04-29 mer. 12:26]
 Entered on [2020-04-29 mer. 16:03]
 ***** read px code
 Entered on [2020-04-29 mer. 16:04]
+*** 2020-07 juillet
+**** 2020-07-02 jeudi
+***** DONE fix platform backup issue
+      CLOSED: [2020-07-02 jeu. 10:54]
+The backup platform encoded in base64 contained a line break char
+    Entered on [2020-07-02 jeu. 10:52]
+***** TODO repair billing
+    Entered on [2020-07-02 jeu. 10:53]
+***** TODO repair manadge
+    Entered on [2020-07-02 jeu. 10:53]
+***** TODO finish bloomberg reports
+    Entered on [2020-07-02 jeu. 10:53]
+**** 2020-07-07 mardi
+***** finished bloomberg report
+    Entered on [2020-07-07 mar. 14:57]
